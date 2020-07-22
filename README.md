@@ -13,10 +13,15 @@ Install Strawberry Perl 5.16.3.1-64Bit with all the default options
 
 Open a command prompt
 	Open a windows command prompt and install the following perl modules (others may be required also)
+	
 		cpan install MLDBM
+	
 		cpan install DBI
+	
 		cpan install DB_File
+	
 		cpan install DBD::mysql
+		
 		cpan install Lingua::Ispell
 
 
