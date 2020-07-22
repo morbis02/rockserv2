@@ -55,8 +55,12 @@ You should now be able to start the server. Open a command prompt,
 	navigate to C:\rockserv2\fuzzem\src and type perl rockserv2.pl
 	
 You can then login using your favorite mud client 
+		
+		
 		ip address is 127.0.0.1 
+		
 		username admin / player
+		
 		password is "password"
 		
 		once logged in there are a few commands you should know
