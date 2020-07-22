@@ -58,6 +58,16 @@ You can then login using your favorite mud client
 		ip address is 127.0.0.1 
 		username admin / player
 		password is "password"
+		
+		once logged in there are a few commands you should know
+			
+			'adminnow' makes you an admin aand also lets you create objects, but you can try and figure out the commands for that :)
+			
+			'noadmin' turns off your admin
+			
+			'sserverjkill' shutsdown the server gracefully
+			
+			'restart' restarts the server gracefully
 			
 
 <!--
