@@ -44,6 +44,8 @@ Open a webbrowser and navigate to http://127.0.0.1/phpmyadmin
 
 			It also creates a mysql user named rockserv with the password "password" that has all access rights on the two databases
 			
+Create folders userinfo and saved in each \src directory
+			
 You should now be able to start the server. Open a command prompt, 
 
 	navigate to C:\rockserv2\dillfrog\src and type perl rockserv2.pl
