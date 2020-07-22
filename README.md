@@ -12,6 +12,7 @@ Install bitnami wampstack 7.4.8.0 with all the default options, set a root passw
 Install Strawberry Perl 5.16.3.1-64Bit with all the default options
 
 Open a command prompt
+
 	Open a windows command prompt and install the following perl modules (others may be required also)
 	
 		cpan install MLDBM
@@ -23,6 +24,14 @@ Open a command prompt
 		cpan install DBD::mysql
 		
 		cpan install Lingua::Ispell
+		
+Open a webbrowser and navigate to http://127.0.0.1/phpmyadmin
+
+	Enter root username and password
+
+Create 2 blank databases r2_dillfrog and r2_fuzzem
+	Import r2dillfrog.sql into the r2_dillfrog database
+	Import r2fuzzem.sql in the r2_fuzzem database
 
 
 <!--
