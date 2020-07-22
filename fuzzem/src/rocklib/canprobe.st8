@@ -1,0 +1,2 @@
+$sline++;
+if($cmd =~ /^YES$/i) { $self->log_append("{2}Thank you for understanding and agreeing to our new terms and conditions.\n"); $self->pref_set('can we probe', 1, 1); &main::rock_shout(undef, "{2}$self->{'NAME'} has agreed to our terms and conditions.\n"); $sline++; } else { if($sockno) { $cap .= "{17}Fine, be that way.\n"; $main::qkillonsend[$sockno]=1; } else { $sline--; $cap .= "{2}Let me say it again.\n"; } } 

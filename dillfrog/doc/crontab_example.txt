@@ -1,0 +1,7 @@
+# Example values. Obviously you won't probably have these files
+# in the same location. And actually, these files might not be in
+# the project tree quite yet.
+0 */5 * * * /usr/dillfrog/r2/compile_scores.pl
+0 */5 * * * /home/plat/r2levquery.pl >/dev/null
+0 * * * * /usr/dillfrog/admin/clean_r2_database.pl >/dev/null
+

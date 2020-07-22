@@ -1,0 +1,44 @@
+ooo Actions ooo
+
+Some people call'em actions, some call'em emotes, some call'em feelings. Some don't know what to call'em, but they're the same thing. In R2, making them is relatively easy. All you need is an email account and perhaps a text editor (not required, though ;-)).
+
+To make an action, you need to make an action file. Here's what a simple action file looks like:
+
+You grin.
+%S grins slyly.
+You grin at %R.
+%S grins slyly at you.
+%S grins slyly at %R.
+You grin at everyone.
+%S grins slyly at everyone.
+
+It has 7 lines. Here's what each line symbolizes:
+
+ - unary ("grin") -
+1) What user sees when he/she types "grin".
+2) What everyone else sees when user grins.
+ - binary ("grin <username>") -
+3) What user sees when he/she types "grin <username>".
+4) What receiver sees when user types "grin <username>".
+5) What everyone else sees when user types "grin <username>".
+ - all ("grin all") -
+6) What user sees when he/she types "grin all".
+7) What everyone else sees when user types "grin all".
+
+This file is named "grin.act", so the game knows that the action's name is "grin" (action files have the ".act" suffix).
+
+And that's how to make an action. But what about the %S and %R stuff? There's some symbols you can use! Each of these will be automatically replaced (by the game) with user information. Here's the run-down:
+
+  %HS  his or her, depending on the SENDER.
+  %MS  him or her, depending on the SENDER.
+  %PS  he or she, depending on the SENDER. (the P stands for Pronoun ;-))
+  %S   the SENDER's name.
+
+  %HR  his or her, depending on the RECEIVER.
+  %MR  him or her, depending on the RECEIVER.
+  %PR  he or she, depending on the RECEIVER. (the P stands for Pronoun ;-))
+  %R   the RECEIVER's name.
+
+Note that these symbols ARE case-sensitive: %S is not the same as %s!
+
+Once you have an action file (or several) mail it/them to me at rocksupport@zilla.net.

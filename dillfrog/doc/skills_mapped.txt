@@ -1,0 +1,112 @@
+## Rock 2: Crashed Plane
+## Skills (skill number is on the left)
+  0: skill_rtrackscan      ("rtrails")      
+  1: skill_trackscan       ("trails")       
+  2: skill_decapitate      ("decapitate <victim>")   
+  3: spell_flesh_meld      ("meld <bodypart>")         
+  4: spell_close_wounds    ("close wounds")
+  5: spell_speed_healing   ("speed heal")   
+  6: spell_harden_flesh    ("harden flesh") 
+  7: spell_blinding        ("blind <victim>")        
+  8: spell_mindvisit       ("mindvisit <victim>")    
+  9: fly                   ("fly")    
+ 10: web_spin              ("spin web")    
+ 11: roar                  ("roar")    
+ 12: spectrite_teleport    ("teleport <user>")    
+ 13: salp                  ("salp <victim>")    
+ 14: spell_levitation      ("repulse gravity")     
+ 15: scurry                ("scurry <dir>")    
+ 16: appraisal_get, compare_items         ("appraise <item>")    
+ 17: item management 102   (implicit maxinv+2)
+ 18: item management 142   (implicit secured+2)   
+ 19: spell_knit_flesh      ("knit flesh")    
+ 20: item management 202   (implicit maxinv+5)
+
+ 21: spell_grapegrow       ("grapegrow")
+ 22: spell_barkish_int     ("bark integument")
+ 23: spell_blossom_allure  ("allure")
+ 24: sprinting             ("sprint north east")
+ 25: salp cataylist        (implicit salp multiplier += .4)
+ 26: dancing
+ 27: advanced web weaving  (implicit boost of web length (45 sec))
+ 28: enforcing webs        (implicit +20% stickier webs)
+ 29: tactical web placement(implicit chance of invisiblity on webs)
+
+ 30: spell_nomouth         ("nomouth <user>")
+ 31: spell_obfuscate       ("obfuscate" +shadow)
+32: spell_obfuscate        ("obfuscate" +hidden)
+33: spell_thoughtstab ("nomouth <user>")
+34: spell_mindblast ("nomouth <user>")
+35: spell_brainthrash ("nomouth <user>")
+36: swimming
+37: animate flesh
+38: quarantine
+ 
+39: wizard's eye
+40: farsee
+41: astral spy
+42: detect forces
+43: scryball
+44: lifeshield
+45: manadart
+46: manabolt
+47: manabeam
+48: tripwire notification
+49: tripwire disarmament
+50: sulph breath - 1 (room) and 2 (singular)
+51: faith heal
+52: miracle (effect with amulet of conviction)
+53: lesser restoration
+54: greater restoration
+55: manalend
+56: mana boost
+57: life aura (unused)
+58: fuse
+59: farshare
+60: allwell
+61: mirage
+
+##################### UNIMPLIMENTED, UNASSIGNED; DONT WORRY ABOUT
+###################### ENUMERATIONS AFTER THIS POINT
+
+ *24: stealth walking
+ *25: stealth stalking
+ *28: item searching ("search")
+ *29: haggling        
+ *30: explosive stabilization
+ 
+ *21: camouflage (hide self, hide objs)
+ *22: cloaking ("twist frequency") 
+ 
+ *21: chem synthesis   (stirr, heat)      ("salp <victim>")    
+ *22: fencing         ("salp <victim>")    
+ *23: sharp-shooting (projectiles)         ("salp <victim>")    
+ *24: clubbing         ("salp <victim>")    
+ *26: cartography
+ *28: carpentry/masonry
+ *29: jewelry/fashion sense(appearance)
+ *30: advanced chem synth (incantations, spells..)
+ *31: walk on water
+ *32: strong hypnosis {'combative'}
+ *33: weak hypnosis (non-combative)
+ 
+ *0: contortionism      
+  *1: telekenisis          
+  *2: astronomy        
+  *3: orientation      
+  *4: portents       
+  *5: fatalism/fatalogy/forecasting         
+  *6: creator of natural disasters     
+  *7: knowing foreign customs   (npc treats you right, like dq)   ("check customs")   
+  *9: pickpocketing/stealing
+ *10: shoplifting - tag items where shoplifted from, in case gets sold back..also, halve value.
+ *11: trap disarmament
+ *13: hypersensitivity (defense vs pickpocketing)
+ *14: machine operation..
+ *15: historical knowledge
+ *16: player/npc level identification (?)
+ *20: rune reading
+ *22: literary analysis
+ *23: chemical analysis         ("salp <victim>")    
+ trap making
+ 

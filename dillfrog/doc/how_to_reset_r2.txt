@@ -1,0 +1,66 @@
+       
+How to reset the game, in a Nutshell
+-------------------------------------------
+
+**
+** If you plan to do anything about rewarding high-scoring players for DP/etc
+** you'll want to do it before resetting the game. :)
+**
+** Actually you'll want to do it before chaos goes crazy.
+** Since that can happen any time now, and there are no in-game hooks
+** to snapshot the scores.. good luck on that! :)
+**
+
+
+--- fix
+raceto - remove command
+
+
+---- to reset
+Database: PLAYERS (scores), daily_scores (graphs), auctions, auction_bids, bad_passwords, lottery and rock_certs (daily win)
+
+truncate table r2.PLAYERS;
+truncate table r2.daily_scores;
+truncate table r2.auctions;
+truncate table r2.auction_bids;
+truncate table r2.bad_passwords;
+truncate table r2.lottery;
+truncate table r2.rock_certs;
+truncate table r2.event_log;
+UPDATE r2.game_server_settings SET value = NULL WHERE name='armageddon_started_by_race';
+UPDATE r2.monolith_capture_status SET owned_by_race=0, date_captured=null, date_contested=null, captured_by_uin=NULL;
+
+
+# WHen the game is offline:
+rm -f /usr/dillfrog/r2/saved/*.r2
+rm -f /usr/dillfrog/r2/dbs/ips_resolved.r2
+rm -f /usr/dillfrog/r2/dbs/ips_connected.r2
+rm -f /usr/dillfrog/r2/dbs/general_votes.r2
+rm -f /usr/dillfrog/r2/dbs/help.r2
+rm -f /usr/dillfrog/r2/dbs/obj_limits.r2
+rm -f /usr/dillfrog/r2/dbs/obj_recd.r2
+rm -f /usr/dillfrog/r2/dbs/obj_unique.r2
+rm -f /usr/dillfrog/r2/dbs/player_bounties.r2
+rm -f /usr/dillfrog/r2/dbs/recnum_toname.r2
+rm -f /usr/dillfrog/r2/dbs/rock_mdim.db
+rm -f /usr/dillfrog/r2/dbs/rock_stats.r2
+rm -f /usr/dillfrog/r2/iop/*.iop
+
+
+/usr/dillfrog/r2/compile_scores.pl
+/home/plat/r2levquery.pl
+
+
+
+GameDB/map:
+
+    * MANUAL: Reset all monoliths so that they are owned by the Outcasts
+        Pearled Averter,  Chronowatcher,  Shade Conservator, Auroral Paladin
+    * MANUAL: Clear cryllies from rooms
+        evalll foreach my $r (@$main::map) { if ($r->{'CRYL'} > 1) { $_[0]->log_append("{12}Room $r->{'ROOM'} has {13}$r->{'CRYL'}\n"); $r->{'CRYL'} = 0; } }
+    * MANUAL: If lightning, change lightning exp multipliers/etc in mainconsts.bse
+    * MANUAL: If lightning, change 12-hour timers in armageddon status page and r2 code
+    
+    
+    * All bounties are cleared (nothing to do here since you covered this by deleting the player_bounties.r2 before)
+    * DP is reset already too

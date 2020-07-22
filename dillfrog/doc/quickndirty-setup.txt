@@ -1,0 +1,77 @@
+Getting started, the quick 'n dirty way. By Thyrr.
+
+This will hopefully become completely unnecessary in the near future. This is a guide to getting RS2 running with a bare minimum amount of work.
+Currently, the Dillfrog, Dillfrog::Auth, and Dillfrog::Mail are incomplete, and need to be finished.
+
+Additional notes on running on Win32 at the end of this doc
+
+======== New way (using SQL) ========
+
+This guide assumes a decent amount of experience using the Linux command line, basic Perl skills, etc. Also, don't worry too much if things don't go as described here, especially as the CVS code changes.
+
+You already should have installed the required Perl modules listed in the Wiki.
+
+First, get a copy of the rockserv2 project via CVS. Hopefully you should have done that already.
+Create a new directory somewhere. I'll use ~/rs2 as an example.
+
+Copy the src directory to ~/rs2/src
+mkdir ~/rs2/www
+mkdir -p ~/rs2/www/help/courses
+mkdir -p ~/rs2/www/admin/logs
+cd ~/rs2/src
+#this will make the in-game data file directories
+mkdir dbs saved userinfo iop maps
+echo "package Dillfrog; 1;" > Dillfrog.pm
+mkdir Dillfrog
+Copy sql_auth.pm from the CVS contrib dir to ~/rs2/src/Dillfrog/Auth.pm
+Copy dummy_mail.pm from the CVS contrib dir to ~/rs2/src/Dillfrog/Mail.pm
+Copy contrib/r-allrooms.txt from CVS to ~/rs2/src/r-allrooms.txt
+
+Install/setup your database server. Only MySQL is currently supported.
+
+Notes: to simplify things, we will use r2.accounts for the auth table, instead of creating another database.
+
+As of writing this, I have not tested this. Your mileage may vary.
+
+== MySQL ==
+I assume you already have this installed, and know the MySQL "root" password (not the same as your system's "root" account).
+mysql -u root -p
+In the MySQL shell that comes up, type:
+CREATE DATABASE r2;
+GRANT ALL ON r2.* TO rockserv@localhost IDENTIFIED BY 'password_goes_here';
+(exit the shell)
+mysql -u rockserv -p r2 < /path/to/cvs/rockserv2/doc/r2_database_schema.txt
+mysql -u rockserv -p r2 < /path/to/cvs/rockserv2/contrib/auth-schema.txt
+mysql -u rockserv -p r2 -e "INSERT INTO r2.accounts VALUES (1, 'username', 'UserName', 'F', 'email@whatever', 'password', 0);"   (make sure to use the appropriate values, of course)
+cd ~/rs2/src
+sed -i 's/dillfrog\.accounts/r2.accounts/g' *.pm
+
+Edit rock_prefs.pm to fit the paths and database options.
+Edit Dillfrog/Auth.pm with the appropriate database info.
+
+Run the server:
+perl rockserv2.pl
+
+Hopefully that should work.
+
+======== Win32 notes ========
+
+Recommended: MySQL, ActiveState Perl 5.8
+
+Use ActiveState's "ppm install" command/shell to install:
+MLDBM
+DBI
+DB_File
+DBD-mysql
+Lingua::Ispell
+and maybe some others that I forget.
+
+The current Win32 binary package for DBD-mysql on Windows has problems with Mysql 4.1.7 and above.
+
+You'll need to do something like:
+SET password FOR rockserv@localhost = old_password('password');
+
+For rock_prefs.pm, paths should look like "C:/rockserv2/src"
+
+The rest of the setup is vaguely similar to the Linux setup. File layout is about the same.
+See also: win32howto.txt

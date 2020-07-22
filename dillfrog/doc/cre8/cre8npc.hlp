@@ -1,0 +1,34 @@
+ooo NPC Creation ooo
+
+While R2 is versatile enough that you can do NPC stuff with Item stuff (and vice versa), I'm assuming that you'd want to know this stuff more-often for NPC creation than anything else. That's why it's here. Just don't let *that* scare you away from using it with other items.
+
+I am assuming that you have read the CRE8ITEM .hlp file before this one. If you haven't, please do so before asking how to do stuff.
+
+### $i->item_spawn (item numbers) ###
+
+This will create an object from the objectbase and put it into your object. Note that while you *TECHNICALLY* can recurse your object, DON'T. It'll recurse into infinity.
+
+### $i->item_randspawn (percentage, item numbers) ###
+
+Same as item_spawn, only it will generate items based on a percentage. For example:
+   
+     $i->item_randspawn(50, 1, 2);
+     
+   Above, there is a 50% chance that item 1 will be added to $i's inventory, and a 50% chance that item 2 will be added. Note that it rolls separately for each. If you wanted certain items to be placed at different percentage chances, just use the function multiple times, such as:
+     
+     $i->item_randspawn(50, 1, 2); $->item_randspawn(20, 3, 4); #..etc
+   
+   In that one, there is a 50% chance that item 1 will spawn, 50% that item 2 will spawn, 20% that item 3 will spawn, and 20% that item 4 will spawn.
+     
+### $i->power_up ([percent]) ###
+
+This powers up the monster to a certain percentage (1-100) of their max hp/mana. If you don't supply a percentage, 100% will be assumed. Remember to power_up after assigning/changing object stats.
+
+     $i->power_up;     # gives object full (100%) hp and mana.
+     $i->power_up(40); # gives object 40% full hp and mana. (can be used to easierly create a weaker npc).
+
+### $i->gender_set (gender) ###
+
+This sets the gender to male or female. Objects are "it"s unless altered by this function. 
+To make male, call: $i->gender_set('m');
+For female, call:   $i->gender_set('f');

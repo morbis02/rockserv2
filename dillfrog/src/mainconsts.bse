@@ -1,0 +1,450 @@
+use strict;
+use Text::Soundex;
+use r2adapt;
+
+### Set up other global vars (Main Constants)
+
+%main::typemap = ( -1, '{2}ROOM', 0, '{6}ITEM', 1, '{1}PLYR', 2, '{5} NPC');
+%main::activemap = ( 1, '{1}* ', 0, '  ');
+@main::afkmap = ( undef, '{1}*AFK*');
+@main::afkpromptmap = ( '', ' {14}* AFK *{16}');
+@main::webafkmap = ( '', '<FONT COLOR=RED>AFK</FONT>');
+@main::adminmap = ( undef, '{1}Admin', '{2}Staff', '{7}Coder', '{7}Build', '{7}Lazy ', '{1}Mail!', '{4}Unix ');
+@main::webadminmap = ( '', '<FONT COLOR=RED>ADMIN</FONT>');
+@main::newbiemap = ( undef, '{7}[New]');
+@main::webnewbiemap = ( '', '<FONT COLOR=WHITE>NEWBIE</FONT>');
+@main::onoff = ('{4}OFF', '{1}ON');
+@main::developermap = ( '', '{2}Devel');
+@main::caarpmap = ( '', '{1}CAARP');
+@main::pkmap = (undef, '{1}P{11}KILL');
+@main::webdevelopermap = ( '', '<FONT COLOR=GREEN>DEVELOPER</FONT>');
+@main::camefrommap = ('', '{6}');
+@main::camefrommapb = ('', '{16}');
+@main::asteriskmap = (undef, 'S', 'R');
+@main::generalmap = (undef, 'G', 'W');
+@main::allyxmap = ('', '{1}X');
+@main::allyomap = ('', '{6}o');
+@main::allysmap = ('', '{2}\\');
+@main::wingmap = (' ', '{7}-', '{6}-', '{16}-', '{13}-',
+                       '{7}=', '{6}=', '{16}=', '{13}=',
+                       '{7}~', '{6}~', '{16}~', '{13}~',
+                       '{4}*', '{14}*', '{15}*', '{13}*',
+                       '{2}/', '{14}/', '{17}/'
+                 ); #mich changed {4}/ to {14}/
+@main::badrepmap = (undef, '{1}>:{17}-( ');
+@main::goodrepmap = (undef, '{16}O{2}:{6}-) ');
+
+%main::channames = (1, 'Newbie Chat', 2, 'Public Chat', 3, 'Chatty Chat Chat', 4, 'Website Chat', 8, 'Anime Chat', 69, 'Eeewwww!');
+
+@main::weblevelcompare = ('<FONT COLOR=WHITE>Same</FONT>', '<FONT COLOR=RED>Higher</FONT>', '<FONT COLOR=VIOLET>Lower</FONT>');
+@main::levelcompare = ('{7}Similar', '{1}More Powerful', '{5}Less Powerful');
+@main::races = ('Outcast', 'Vrean', 'Spectrite', 'Dryne', 'Taer', 'Shi-Kul', 'TEAM A', 'TEAM B', 'Ecurte');
+@main::raceExpPHYMap=(.5, .6, .5, .8, .6, .7);
+@main::racefistlist = ('mystical fists', 'tentacles', 'shadowfists', 'tails', 'ratfists'); 
+
+# Chaos-night race suggestions (you'll have to do this manually though):
+#@main::races = ('Outcast', 'Doorstop', 'Pre-Chewed Gum', 'Guitarist', 'One-Ear', 'Plastic Ruler'); 
+#@main::races = ('Outcast', 'Rainbow-Finder', 'Firefighter', 'Toilet Inspector', 'Radiator', 'Costly Lawyer'); 
+#@main::races = ('Outcast', 'Dillusionary', 'Antidisestablishmentarianistic means of dehydration like one would throw an opaque box toward any given ceiling of dirt', 'Corrupt Beta-Tester', 'Third-Degree Burn', 'Spatula'); 
+
+# init formal ally list, and %racetonum hash
+undef(%main::racetonum);
+for (my $race=0; $race<=$#main::races; $race++) {
+   for (my $ally=0; $ally<=$#main::races; $ally++) {
+       if(!$main::allyfriend[$race]->[$ally] && 
+          $main::rock_stats{'rally-'.$race.'-'.$ally} &&
+          $main::rock_stats{'rally-'.$ally.'-'.$race}
+         ) { 
+            $main::allyfriend[$race]->[$ally]=1;
+            $main::allyfriend[$ally]->[$race]=1;
+       }
+   }
+   $main::allyfriend[$race]->[$race]=1;
+   $main::racetonum{lc($main::races[$race])}=$race;
+}
+
+@main::timesmap = ('not one bit', 'once', 'twice', 'thrice', 'four times', 'five times', 'six times', 'seven times', 'eight times', 'nine times', 'ten times');
+
+%main::gendermap = ('neuter', '{7}', 'female', '{1}', 'male', '{6}');
+%main::colortonum = ('dark red', 1, 'dark green', 2, 'brown', 3, 'dark blue', 4, 'purple', 5, 'dark cyan', 6,
+   'gray', 7, 'grey', 7, 'red', 11, 'green', 12, 'yellow', 13, 'blue', 14, 'magenta', 15, 'cyan', 16, 'white', 17);
+
+%main::numtocolor = reverse(%main::colortonum);
+
+
+# Racial "Biorhythms"
+# Look at the "racemult_gen" function for more insight into this.
+#                                                    KMEC KSOC KMED KCOM MOFF MDEF MELE CAPP CATT AUPP ALOW SUPP SLOW DPHY DENE DMEN MMEN  TOTAL
+@{$main::racestats[1]} = ('Vrean', 1, 2, 3, 4, 5,     10,  10,  15,   2,   6,   6,  18,   5,  10,   8,  18,   4,  16,   6,   8,  10,  10); #162
+@{$main::racestats[2]} = ('Spectrite', 1, 2, 3, 4, 5, 12,   5,   5,  12,  12,  10,   5,   4,   4,  12,  12,   8,   8,  12,  10,  15,  18); #164
+@{$main::racestats[3]} = ('Dryne', 1, 2, 3, 4, 5,      2,   2,   2,   4,  12,   1,   3,   3,  12,   2,   1,  17,  13,  13,  13,   5,   1); #106
+@{$main::racestats[4]} = ('Taer', 1, 2, 3, 4, 5,      12,   8,   9,   9,   9,   9,   5,   7,   6,  13,  16,   6,   8,  11,  11,   8,   8); #155
+@{$main::racestats[5]} = ('Shi-Kul', 1, 2, 3, 4, 5,   12,   8,   9,   9,   2,  10,   5,  15,  12,   8,   8,   9,   9,   9,  16,  11,  11); #163
+
+@main::raceskills = ('WEBSPIN', 'FLITE', 'ROAR', 'TELEPORT');
+
+%{$main::racegifts[1]} = ('WEBSPIN', 7);
+%{$main::racegifts[2]} = ('TELEPORT', 1);
+%{$main::racegifts[3]} = ('ROAR', 2);
+#%{$main::racegifts[4]} = ('SCURRY', );
+%{$main::racegifts[5]} = ('FLITE', 1);
+
+@main::looktoggle = ('#FFFFDD', '#DDFFFF');
+@main::webstatuslist = split(/,/,"<FONT COLOR=RED>Dead</FONT COLOR>,<FONT COLOR=RED>Practically Passed Out</FONT COLOR>,<FONT COLOR=RED>Bleeding Profusely</FONT COLOR>,<FONT COLOR=RED>Bleeding Heavily</FONT COLOR>,<FONT COLOR=RED>Slightly Bleeding</FONT COLOR>,<FONT COLOR=BLACK>Out of Breath</FONT COLOR>,<FONT COLOR=BLACK>Heavily Winded</FONT COLOR>,<FONT COLOR=BLACK>Slightly Winded</FONT COLOR>,<FONT COLOR=BLUE>A little scratched up</FONT COLOR>,<FONT COLOR=BLUE>Considerably Healthy</FONT COLOR>,<FONT COLOR=BLUE>Remarkably Healthy</FONT COLOR>");
+@main::statuslist = split(/,/,"{1}Dead,{11}Practically Passed Out,{11}Bleeding Profusely,{1}Bleeding Heavily,{1}Slightly Bleeding,{7}Out of Breath,{7}Heavily Winded,{6}Slightly Winded,{16}A little scratched up,{4}Considerably Healthy,{14}Remarkably Healthy");
+
+@main::days = ('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+@main::months = ('January','February','March','April','May','June','July',
+             'August','September','October','November','December');
+
+use ansi_map_normal;           # UNUSED (Because it's annoying): 9 , '[5m', 10 , '[0m', 20, '[40m[2J',
+
+           
+
+#%main::badwordtmpl = ('pussy' => 'coward', 'suck' => 'rule', 'fuck' => 'fudge', 'bitch' => 'birch', 'vagina' => 'Virginia', 'boob' => 'scooby', 'shit' => 'doh', 'nigger' => 'blah', 'faggot' => 'sunshine', 'hore' => 'bore', 'cunt' => 'runt', 'masturbate' => 'fish', 'phucking' => 'lucky', 'fucking' => 'lucky');
+#undef(%main::badword);
+#foreach my $key (keys(%main::badwordtmpl)) { $main::badword{&main::soundex($key)} = $main::badwordtmpl{$key}; }
+
+
+#
+# Color maps
+# Recall that most of the R2 text is colored inside braces (e.g. {1} is dark-red, {11} is bright red, like the
+# similar ANSI codes). The colorhtmlmap and htmlmap below translate these colors into HTML-friendly colors.
+#
+# If the user has colors turned off ("co" command) and viewing the HTML rendering, we use the htmlmap.
+# with colors on, we use the colorhtmlmap.
+#
+%main::colorhtmlmap = ( 1 , '<FONT COLOR=#CC0000>', 2 , '<FONT COLOR=#003300>', 3 , '<FONT COLOR=BROWN>', 4 , '<FONT COLOR=#000099>',
+             5 , '<FONT COLOR=#660066>', 6 , '<FONT COLOR=#110022>', 7 , '<FONT COLOR=#333333>', 8 , '<FONT COLOR=#444444>',
+             11 , '<FONT COLOR=#330000>', 12 , '<FONT COLOR=#007700>', 13 , '<FONT COLOR=#444400>', 14 , '<FONT COLOR=BLUE>',
+             15 , '<FONT COLOR=#330033>', 16 , '<FONT COLOR=#330099>', 17 , '<FONT COLOR=BLACK>', 18 , '<FONT COLOR=BLACK>',
+             9 , '<BLINK>', 10 , '</BLINK>' , 40, '<FONT FACE=""><PRE>', 41, '</PRE><FONT FACE="Comic Sans,Comic Sans MS">', 42, '<BLINK><FONT SIZE=+2 COLOR=RED> BEEP! </FONT></BLINK>', 43, '<B>', 44, '</B>',
+             30, '{', 31, '}' 
+             );
+
+%main::htmlmap = ( 1 , '</B>', 2 , '</B>', 3 , '</B>', 4 , '</B>',
+             5 , '</B>', 6 , '</B>', 7 , '</B>', 8 , '</B>',
+             11 , '</B><B>', 12 , '</B><B>', 13 , '</B><B>', 14 , '</B><B>',
+             15 , '</B><B>', 16 , '</B><B>', 17 , '</B><B>', 18 , '</B><B>',
+             9 , '<BLINK>', 10 , '</BLINK>' , 40, '<PRE>', 41, '</PRE>', 42, '<BLINK><FONT SIZE=+2> BEEP! </FONT></BLINK>',
+             30, '{', 31, '}' 
+           );
+
+%main::htmlmap = %main::colorhtmlmap;
+
+%main::elsemap = ( 30, '{', 31, '}' );
+
+
+%main::dirlongmap = ('N', 'north', 'S', 'south', 'E', 'east', 'W', 'west',
+                     'NW', 'northwest', 'NE', 'northeast', 'SE', 'southeast', 'SW', 'southwest', 
+                     'D', 'down', 'U', 'up');
+
+%main::dirfrommap = ('N', 'the north', 'S', 'the south', 'E', 'the east', 'W', 'the west',
+                     'NW', 'the northwest', 'NE', 'the northeast', 'SE', 'the southeast', 'SW', 'the southwest', 
+                     'D', 'below', 'U', 'above');
+
+%main::dirernmap = ('N', 'northern', 'S', 'southern', 'E', 'eastern', 'W', 'western',
+                     'NW', 'northwestern', 'NE', 'northeastern', 'SE', 'southeastern', 'SW', 'southwestern', 
+                     'D', 'downward', 'U', 'upward');
+
+%main::dirwall = ('N', 'wall', 'S', 'wall', 'E', 'wall', 'W', 'wall',
+                     'NW', 'wall', 'NE', 'wall', 'SE', 'wall', 'SW', 'wall', 
+                     'D', 'floor', 'U', 'ceiling');
+
+%main::diroppmap = ('N', 'S', 'S', 'N', 'E', 'W', 'W', 'E',
+                     'NW', 'SE', 'NE', 'SW', 'SE', 'NW', 'SW', 'NE', 
+                     'D', 'U', 'U', 'D');
+
+@main::dirlist = ('W', 'NW', 'SW', 'N', 'U', 'D', 'S', 'SE', 'NE', 'E');
+
+&condense_map;
+
+sub condense_map {
+  my ($word, $cut);
+  my %revmap = reverse(%main::dirlongmap);
+  foreach $word (@main::dirlist) { $main::dircondensemap{lc($word)}=$word; }
+  $main::dircondensemap{'up'}='U';
+  foreach $word (sort by_shortest_length keys(%revmap)) {
+    $cut = $word;
+    while(length($cut)>2) {
+      if(!$main::dircondensemap{$cut}) { $main::dircondensemap{lc($cut)} = $revmap{$word}; }
+      $cut = substr($cut, 0, length($cut)-1);
+    }
+  }
+  return;
+}
+
+sub by_shortest_length { length($a) <=> length($b) }
+
+%main::recurshashes = ('player', 1, 'HASH', 1);
+
+%main::map_interp_dont = ('N', 1, 'S', 1, 'E', 1, 'W', 1, 'NE', 1, 'SE', 1, 'SW', 1, 'NW', 1, 'U', 1, 'D', 1);
+%main::flatten_dont = ('OBJID', 1, 'MN', 1, 'EXITS', 1, 'X', 1, 'Y', 1, 'Z', 1,  'GOR', 1, 'M', 1, 'GRAFFITI', 1); #
+%main::flatten_mayberef = ('DESC', 1);
+@main::bodyparts = ('head', 'foot', 'leg', 'arm', 'eye', 'wrist', 'hand', 'torso', 'neck', 'ear', 'skull');
+
+$main::diroffset->{'N'}= sub { my @a = @_; $a[1]++; return(@a); };
+$main::diroffset->{'S'}= sub { my @a = @_; $a[1]--; return(@a); };
+$main::diroffset->{'E'}= sub { my @a = @_; $a[0]++; return(@a); };
+$main::diroffset->{'W'}= sub { my @a = @_; $a[0]--; return(@a); };
+$main::diroffset->{'NE'}= sub { my @a = @_; $a[1]++; $a[0]++; return(@a); };
+$main::diroffset->{'NW'}= sub { my @a = @_; $a[1]++; $a[0]--; return(@a); };
+$main::diroffset->{'SE'}= sub { my @a = @_; $a[1]--; $a[0]++; return(@a); };
+$main::diroffset->{'SW'}= sub { my @a = @_; $a[1]--; $a[0]--; return(@a); };
+$main::diroffset->{'U'}= sub { my @a = @_; $a[2]++; return(@a); };
+$main::diroffset->{'D'}= sub { my @a = @_; $a[2]--; return(@a); };
+
+%main::terrain_tonum =
+     ('default', 0, 'underground', 1, 'desert', 2, 'tropical', 3,
+      'forest', 4, 'path-dirt', 5, 'water-shallow', 6, 'swamp', 7, 'beach', 8,
+      'town', 9, 'plains/grasslands', 10, 'cavern', 11, 'indoors/sheltered', 12,
+      'hill', 13, 'mountain', 14, 'tundra', 15, 'magic-point', 16, 'water-medium', 17, 'water-deep', 18,
+      'soundproof', 19, 'chatroom', 20);
+
+%main::terrain_toname = reverse(%main::terrain_tonum);
+
+@main::terrain_colors =
+     (
+       7,  3, 13, 2,
+       2,  3, 6, 2, 13,
+       5, 12, 3, 17,
+       2, 3, 7, 1, 14, 4,
+       15, 17
+      );
+
+%main::statnum_toname =
+     (0, 'Knowledge', 1, 'Magic', 2, 'Charisma', 3, 'Agility', 4, 'Strength', 5, 'Defense',
+     6, 'KNO - Mechanical', 7, 'KNO - Social', 8, 'KNO - Medical', 9, 'KNO - Combat');
+
+@main::maintenance_todo =
+( 
+ '&main::rem_inactive_users;',
+ '$main::map->[0]->cleanup_inactive;',
+
+ '&main::spawn_stuff;',
+ '&main::objs_idle;',
+
+ '&main::auto_cleanup(0);',
+ '&rockobj::invade_privacy;',
+ '&main::compress_descs;',
+
+ '&main::spawn_stuff;',
+ '&main::objs_idle;',
+
+
+ '&main::cleanup_rooms;',
+ '&main::cleanup_objs;',
+
+ '&main::spawn_stuff;',
+ '&main::objs_idle;',
+
+);
+
+# Array of IPs that multiple users can connect from, if any  
+#@main::bbss = ('198.234.228.1', '198.234.229.84');
+foreach my $n (@main::bbss) { $main::bbss{$n}=1; }
+
+# Array of IPs that are not allowed to interact with the game (they'll get
+# immediately disconnected as soon as they connect)
+@main::banlist = ();
+
+# telserv
+$main::delkey = chr(127);
+$main::iackey = chr(255);
+$main::maintainstart=0;
+$main::starttime = time;
+$main::totalcommands=0;
+
+%main::telnetmsgs = ( # the 255 is NOT implied.
+    '253-6', chr(255).chr(251).chr(6), # WILL, TIMINGMARK
+    '246', "[ have no fear! rockserv is here! ]\n"
+  );
+
+#'-nothing-' => 1,
+%main::preflist = ( 'brief room descriptions' => 2, 'brief combat descriptions' => 3, 'gift-acceptance' => 4, 'attack upon user entry' => 5, 'jive' => 6, 'stat prompt' => 7, 'busy flag' => 8, 'double newlines' => 9, 'verbose messages' => 10, 'auto talk' => 11, 'read rules' => 12, 'silence shouts' => 13, 'silence gossips' => 14, 'silence logins' => 15, 'silence logouts' => 16, 'silence auctions' => 17, 'can we probe' => 18, 'newbie' => 19, 'autoequip' => 20, 'general eligibility' => 21, 'censor filter' => 22, 'read news' => 23, 'silence deaths' => 24, 'can reset' => 25, 'autoraise' => 26, 'tell-echoing' => 27, 'old-school hives' => 28);
+# Note: "read news" shows whether or not the user read the news for the day.
+
+@main::dream_sequence = ('You imagine a majestic golden temple, lined with an assortment of foliage.', 'You imagine the crumbling remains of a dark tower, lying long-forgotten in the heart of a foul swamp.', 'You imagine a circle of druidic standing stones, encircling a bare field.', 'In your mind, a blazing moon rises over the scene, basking pale light upon the scene.', 'Mentally, a thick mist spreads across the landscape, enshrouding the area in an impenetrable blanket.', 'A sort of darkness appears from nowhere.', 'You imagine the thumping sound of horses in the distance.', 'In your mind, you imagine a shrill cry of help breaking the silent air.', 'You imagine the sound of a thousand voices, all singing out in praise to some higher being.', 'In your mind, you see an armored unit of men appearing on the scene. They each are armed with vicious weapons.', 'A winged Dryne mentally appears to you, streaking across the sky, its golden scales flickering brightly.', 'You imagine a terrified girl running away from something horrible.', 'In your mind, you see a noble pegasus galloping through the nearby clouds.');
+@main::insane_talk = ('ooh i\'m singin, "time is short but i got my %I"', 'where oh where has my little %I gone?', 'look how much my %I has grown!', 'will u b my friend, %R?', '%I 2 is like your regular %I, but now with only half the fat!', 'burgers are greasy but %Is are delicious', 'where is %R', 'got a %I', 'ill pay lots of cash for a good %I', 'grandmother, what big %Is you have!', 'the clouds are fresh and fuzzy tonight, aren\'t they', 'if I had a bug, I\'d probably name it "bug", since so few bugs are named it these days.', 'if I had a nickel for every nickel I had, I\'d have a lot of nickels.', 'so i said, "kill\'em? I don\'t even KNOW\'em!"', 'I love %R!', 'come here, %R!', 'die %R! I hope you burn!', 'I am cool', 'hehe, I have a %I', 'anyone want my %I?', 'selling %I...', 'how was your day?', 'book, i need a book in my face', 'youre such a friendly %I, yes you are!', 'i can count, see? 10 9 8 7 6', 'i like the color blue', 'i hate the color yellow', 'hehehehahahahhaheee', 'aoeoeojejajajajajehehe', 'what is %R?', 'i want a %I', 'i wish i had a %I', 'teleport to me', 'hurry up %R, teleport to me!');
+@main::classexit = ('{2}The professor glares coldly, freezing you in place with fear.', '{17}"{16}Take one more step towards that door,{17}" The professor mutters, "{16}And you\'ll find yourself with a ruler shoved so far up your ..oh, wait, I can\'t say that!{17}"'); # ass you wont be able to move for a week
+@main::compli_coffee = ('The smiley face on your coffee mug suddenly comes to life. "Hi! My name is Joe. Wow, you look great today!"', 'Without warning the happy face on your coffee mug winks at you. "Your the bestest pal a ceramic mug could ask for."', 'Your coffee mug begins to sing softly to you. "I just called.. to say... I LOVE you!"', 'A little voice can be heard, coming from the smiling face on your coffee mug. "Gee whiz. Your the nicest person I\'ve ever known!"');
+
+# help files
+$main::helpmap{'communication'} = ['msg', 'shout', 'say', 'mumble', 'gossip', 'think', 'actions', 'emote', 'reply', 'tell'];
+$main::helpmap{'rooms'} = ['scurry', 'look', 'hint', 'peek', 'teleport', 'fly'];
+$main::helpmap{'npcs'} = ['ask', 'order', 'stalk'];
+$main::helpmap{'courses'} = ['about', 'checkin', 'courses', 'enroll', 'enroll list'];
+$main::helpmap{'cryl'} = ['bounty', 'deposit', 'bank', 'withdraw', 'loot', 'unloot'];
+$main::helpmap{'items'} = ['offeruser', 'disarm', 'throw', 'secure', 'unsecure', 'sell', 'recipes', 'remove', 'objmanip', 'make', 'buy', 'drop', 'wield', 'wear', 'fill', 'get', 'give', 'put'];
+$main::helpmap{'preferences'} = ['brief', 'chpw', 'combat brief', 'dnl', 'mydesc', 'newbie', 'prompt', 'raceto'];
+$main::helpmap{'stats'} = ['dp', 'raise', 'skills'];
+$main::helpmap{'combat'} = ['attack', 'rest', 'throw'];
+$main::helpmap{'military'} = ['alliances', 'ally', 'soldier', 'vote'];
+$main::helpmap{'development'} = ['bug', 'bugs', 'idea', 'mailing list', 'page'];
+$main::helpmap{'theory'} = ['legacy', 'monoliths', 'rules'];
+$main::helpmap{'chisel'} = ['room', 'statnums', 'terrain', 'terraintypes'];
+$main::helpmap{'players'} = ['thank', 'deprecate'];
+
+@main::inject_items = (135, 338, 347, 337, 380, 381); # 339, 340
+
+%main::parr = ('KNO', 0, 'MAJ', 1, 'CHA', 2, 'AGI', 3, 'STR', 4, 'DEF', 5,
+              'KMEC', 6, 'KSOC', 7, 'KMED', 8, 'KCOM', 9, 'MOFF', 10, 'MDEF', 11,
+              'MELE', 12, 'CAPP', 13, 'CATT', 14, 'AUPP', 15, 'ALOW', 16, 'SUPP', 17,
+              'SLOW', 18, 'DPHY', 19, 'DENE', 20, 'DMEN', 21, 'MMEN', 22
+              );
+%main::rparr = reverse(%main::parr);
+   #              0     1      2    3      4     5
+@main::eclass = (undef,undef,undef,undef,undef,undef,
+   #              6          7         8         9    
+                'EXPMEN', 'EXPMEN', 'EXPMEN', 'EXPMEN',
+   #              10         11        12        13    
+                'EXPMEN', 'EXPMEN', 'EXPMEN', 'EXPPHY',
+   #              14          15       16       17    
+                'EXPMEN', 'EXPPHY', 'EXPPHY', 'EXPPHY',
+   #              18          19       20       21        22
+                'EXPPHY', 'EXPPHY', 'EXPPHY', 'EXPMEN', 'EXPMEN'
+               );
+@main::eclass = (undef,undef,undef,undef,undef,undef,
+                'EXPMEN', 'EXPMEN', 'EXPMEN', 'EXPMEN',
+                'EXPMEN', 'EXPMEN', 'EXPMEN', 'EXPPHY',
+                'EXPMEN', 'EXPPHY', 'EXPPHY', 'EXPPHY',
+                'EXPPHY', 'EXPPHY', 'EXPPHY', 'EXPMEN', 'EXPMEN'
+               );
+
+%main::prompt_token_map = (
+   'H' => 'MAXH',
+   'h' => 'HP',
+   'M' => 'MAXM',
+   'm' => 'MA',
+   't' => 'T',
+   'T' => 'MT',
+   'p' => 'EXPPHY',
+   'x' => 'EXPMEN',
+   'c' => 'CRYL',
+   's' => 'SALP'
+);
+
+# character generation
+@main::BeginCons=split(/ /,"b bl br c ch chr cl cr d dr f fl fr g h j k kn l m n p pl pr qu r s sh squ st str t th tr v w y z");
+@main::MidVow=split(/ /,"a au e ea ee i ie o oa oe oo ou u");
+@main::EndCons=split(/ /,"b ch f g k l ly m n ng p que r s t ve x y zz");
+@main::MidCons=split(/ /,"b bl br ch cl cr d dr f ff fl g h j k m mm n ng nn p pl pp pr qu r rr s st str tt v w y z zz");
+@main::SylEnding=split(/ /,"aint al ant apt ate ear eat edge eer ent ept ere ess et ey id ieve ing ion ire ish ity oard og on one opt or ord ory ount out ual uff upt us use ust ute");
+@main::FullSyllab=split(/ /,"bag ben berg big bug bus dog for her his pal shag shig shrub shrug shug was wear wig wish");
+@main::SillySuffix=split(/ /,"OfBorg aroo iffic istic olio y oso ickish ish");
+@main::WordCombos=split(/ /,"1239 12423 1242423 15 1559 1245 669 615 626 124239 124239 12423");
+
+
+# misc
+$main::msgids = 1; # start off at 1, not 0
+
+# version
+$main::ver_cryl = "0.85";
+$main::ver_inv = "1.21";
+$main::ver_stat = "1.41";
+$main::ver_map = "0.39";
+$main::ver_skill = "0.16";
+$main::ver_class = "0.16";
+$main::ver_mili = '0.16';
+$main::ver_quest = "0.06";
+$main::ver_time = "0.06";
+###### IMPORTANT!!!!!! NEXT TIME YOU RAISE THIS, MAKE IT NO LESS THAN 0.03. 0.03 IS OKAY. WE HAD THIS AT 0.02 FOR A WHILE, THEN LOWERED IT BACK TO 0.01... SOME PLAYERS ALREADY HAVE THE 0.02 VERSION.
+$main::ver_pref = "0.01";
+$main::ver_dp = "0.01";
+
+
+$main::bluebar="{14}-{4}".('==' x 30)."{14}-\n";
+
+use news_man;
+$main::news_man = news_man->new();
+
+# notes
+#$main::motd="{16}ONLY BUY ITEMS FROM OTHER PLAYERS USING THE {2}OFFERUSER {16}COMMAND!!! EVERYONE CAN USE IT IF THEY WANT TO! {6}ONLY BUY ITEMS FROM OTHER PLAYERS USING THE {2}OFFERUSER {6}COMMAND!!! EVERYONE CAN USE IT IF THEY WANT TO! {16}ONLY BUY ITEMS FROM OTHER PLAYERS USING THE {2}OFFERUSER {16}COMMAND!!! EVERYONE CAN USE IT IF THEY WANT TO! {6}ONLY BUY ITEMS FROM OTHER PLAYERS USING THE {2}OFFERUSER {6}COMMAND!!! EVERYONE CAN USE IT IF THEY WANT TO! {1}GETTING RIPPED OFF ISN'T FUN FOR ANYONE.\n";
+#$main::motd="{16}Do you like your Rock character? Do you REALLY like that Rock character? If the answer is YES, then don't give it's password out to anyone. Giving out passwords can be a quick ticket to deletion.\n";
+#$main::motd="{16}You may notice that the scores aren't currently working properly. I [Plat] am doing a complete rewrite of the scoreboard code, so the 'board may be unavailable for a day or two. Thanks for noticing and putting up with us. :-)\n";
+#$main::motd="{1}************** {16}IMPORTANT Asterisk-Laden Message {1}****************\n     {7}For reasons unknown, some players' files were left only PARTIALLY - and unrepairably - saved. Since the backup files are corrupted as well, our only option is to delete those players who are experiencing recent login trouble. If you are receiving password errors when trying to log in, chances are that you are one of these people, and ask that you 'simply' create a new character. Please understand that we have tried our best to find the cause/solution of this, only to no avail. No recent changes have been made to the game's code to cause such a disaster.\n\n     Because of this, Rock will reset sometime during the weekend of December 10-13 (sorry we don't have an exact date/time). Players high upon today's (Tuesday night's) DP charts will be contacted via their signup email addresses within the next week - congratulations. Our art contest winners will be contacted accordingly as well.\n{1}***************************************************************\n";
+#$main::motd="{13}***   Important Message From {3}Krafter{13}   ***\n{16}      just a warning... the site should be down most of Friday... this is for a\nserver rebuild.. NOT a game reset...\n{13}< end of broadcast >\n";
+#$main::motd=("{13}**********************************************************\n"x5).("{14} Read the News:   http://www.dillfrog.com/ \n"x5).("{13}**********************************************************\n"x5);
+$main::motd="";
+
+$main::can_we_probe = <<END_CAP;
+In order to maintain site security and enforce site rules we have found
+it necessary to utilize some special techniques that reach across the
+network and probe your computer. Some of the functions we make available,
+Rock for example, thus require you agree to freely allow us to do these
+activities.
+
+By agreeing to this you are giving us consent to use various standard
+techniques to gain more information about people connecting to our site.
+These techniques may include, but are not limited to, port-scanning and
+probing your machine from across the network.
+
+Privacy is important to us and thus, any and all information gathered
+through these methods will only be used for the purpose of site security and
+rule enforcement. The information will not be seen by, or shared with,
+anyone outside of senior zilla.net staff.
+
+Do you agree to the above requirements? (NOTE: disagreeing, typing NO, you
+will no longer be permitted to access Rock)
+
+YES/NO> 
+END_CAP
+
+
+
+@main::blankmap = ('     ', '     ', '     ');
+
+$main::rock_host = 'dillfrog.com';
+$main::rock_host_str = '' || $main::rock_host;
+use rock_talker;
+$main::rock_talker = rock_talker->new();
+
+# online, toggleable prefs
+$main::max_course_wait_time = 60; # max SECONDS the player waits for his/her course to finish. This is auto-lowered by up to 50% based on player's KNO.
+$main::allow_new_signups = 1; # character signups, not dillfrog.com accounts
+$main::min_pw_change_time = time - 24*60*60 * 45; # N/A -- game no longer controls passwords
+$main::kill_allowed = 1;
+$main::make_alts_wait = 30; # measured in SECONDS; used to be 5*60. the 5 min ip restrict
+$main::admin_login_only = "@ARGV" =~ /adminonly/i; # 1 or 0 depending on CL args
+$main::telnet_only = 0; # if 1, nobody can use the web interface
+$main::maxweb=5;
+$main::ip_resolutions=0; # will lag the game a little if set! DONT TURN THIS ON
+$main::pvp_restrict = 5;
+$main::high_uonline = 0;
+$main::swingrand = 40; # relates to how many misses
+$main::daminvmod = 4; # damage inverse modifier (1/x) (was 4)
+$main::pvpsperday = 3;
+$main::swinginvmod = 1.1; # swing inv modifier (# swings per round)
+$main::gmTimeMod = -5;
+$main::noHangupDuringPvp = 1;
+$main::badrepborder=-25;
+$main::goodrepborder=50;
+$main::similar_players_range=3; # used for "similar players" command
+$main::swear_filter=1;
+$main::lives_per_day=0;
+$main::one_player_per_ip=1;
+$main::safe_cmds = 10_000; # number of commands users can type (that would normally crash stuff) before the game bombs out
+$main::world_of_khaki=0; # everything is Khaki!! KHAKI!!!
+$main::do_cleanup = 1; # auto reboot every once in a while
+
+$main::arena_time_limit = 8; # (8) minutes, OR 0 for score-based (score threshold based on number of players in arena)
+$main::arena_start_time = 3; # minutes
+$main::arena_can_life = 1; # 1 || 0
+$main::arena_planning_time= 30; # sec
+$main::sleepint=0;
+
+$main::max_turns_storable = 15_000;
+$main::armageddon_started_by_race = 0; # outcasts can't win, don't worry :)
+
+
+$main::set_cryl_on_no_cryl_pct = 0.2; # if the NPC doesn't have any cryl, we set some.. if random die roll is withing this percent (e.g. non-lightning is  0.2 is 20%, lightning was 0.6)
+$main::set_cryl_on_no_cryl_from = 0; # if the NPC doesn't have any cryl, we set 
+$main::set_cryl_on_no_cryl_to = 5; # Typically this is 5 on non-lightning round or 10 on lightning; remember this gets multiplied later too
+$main::lightning_exp_multiplier = 1.5; # 8 on lightning. 1 on first non-lightning
+$main::lightning_cryl_multiplier = 1; # 7 on lightning
+$main::lightning_course_point_multiplier = 1; # 7 on lightning
+$main::newbie_for_days = 7; # 1 on lightning
+
+# fill item with source ->
+$main::fill{155}->{286}=156;
+1;

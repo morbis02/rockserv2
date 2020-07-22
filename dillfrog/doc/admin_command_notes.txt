@@ -1,0 +1,11 @@
+rvs / objvs / svs commands are used to set room / object / self's variables. Please do not use these until I can further explain them to you - it's the crudest way to set variables, and if you make a typo, you can mess stuff up. In reality, no admin should have to use these commands - but rather, there should be a command suitable for whatever task you're trying to accomplish. Unfortunately, this is not the case with Rock [yet?], so svs/objvs/rvs may be necessary at times. NEVER OBJVS/SVS the "NAME" variable. (RVS'ing it is okay, but we'd just assume you used the 'title' command).
+
+"objs [string]" lists all objects in the game that match the string pattern. Typing "objs" will list all objects in the game - we recommend you dont try it, it's a very long list. For example, "objs ruler" would list all "ruler"s in the game (along with object id and room number).
+
+"goto [string]" is similar to "objs [string]", but it will transport you to the object if only one object matches your query. Otherwise it will list the first 5 matches, so as not to spam like "objs" does.
+
+"telnet" lists all telnetting users/ips.
+"pl" lists all (web + telnetting) users/ips.
+
+135 - Turquoise Orb
+363 - Golden Ruler

@@ -1,0 +1,208 @@
+ooo Item Creation ooo
+
+So you want to create a standard (referable) item. No problem! Here's some syntax that you'll need to know, though, in order to be successful at it.
+
+First of all, here's an example of a "finished" (and simple) item's creation code:
+
+$main::objbase->[2] = sub { my $i = item->new('NAME','test cloth','DESC','This cloth is just a test.', 'ATYPE', 'torso'); $i->exp_distribute(2000); $i->stats_change(14,11,10,8); return($i); };
+
+Now, we just have to break it up into a few bite-sized chunks (and we'll even ignore the stuff that you shouldn't worry about).
+
+### The object's creation number ###
+
+First of all, you'll notice "$main::objbase->[2]". Looks scarey, doesn't it? All it means is that the item you're making will be known to the computer as $main::objbase->[2]. When an admin types "cr 2", it'll create *your* object. Don't worry about the number - Plat has to change that for you anyway so that you dont use a number that he's already using :).
+
+### The sub {} ###
+
+The sub {} is just a way of saying "This is the stuff I want you to do to make my item!". You dont have to worry about it - just make sure it's there :).
+
+### item->new() ###
+
+This is the most important part of the code - it creates the item. Most generic items will be created using item->new(), but if you're making a magical item or something special, talk to Plat. For example, if you wanted your object to be similar to a clock (so you can wind it up, and look at the time and stuff), you'd use "clock->new()" instead. Rooms are created similarly (room->new()), but *you* should never create a room this way (you'd have no reason to, and besides, it gets weird).
+
+When you're creating a new item, you can pass it a few arguments to set information about the item. For example:
+
+    item->new('NAME', 'Cool Sword');
+	
+would change the name of the sword to "Cool Sword". Notice that each argument has apostrophes (single-quotes) around them. This is a must. You do not have to assign every value (eg: NAME, DESC, etc) to each item, but the more you use, the happier players tend to be. Also note that 'NAME' is the variable name, and 'Cool Sword' is the value of that variable. Note that the variable name (eg: 'NAME', 'DESC') is *always* in upper-case. No exceptions!
+
+Now that you're utterly confused, here's a list of variables (and explanations) that you may want to take advantage of.
+
+NAME
+      The name of the object. Please follow suit and do not capitalize item
+      names. Also, please only use letters a-z and no weird characters.
+      Remember - people are going to be trying to pick these items up! :)
+      
+DESC
+      The object's description. This will be given to the player whenever
+      he "look"s at the object.
+
+INVIS
+      Boolean variable (1 or 0) that determines whether or not the object
+      will be known to players in the room. Players would still be able
+      to interact with the object if its invis were 1, they just wouldn't
+      see it in the "Items in room:" list.
+      
+      A value of 0 means it's visible. 1 means it is not. Objects are
+      normally visible, so unless you want it to be *invisible*, don't
+      even bother with this variable.
+
+ATYPE
+      The armour type of the object. If an object has an ATYPE, users will
+      be able to wear the armour on their body. The value of ATYPE determines
+      exactly where the user wears it. Please make sure your ATYPE value
+      is completely lowercase (eg: .. 'ATYPE', 'head', ..). You can use
+      whatever ATYPE value that you want, but the suggested list to choose
+      from includes: torso, head, arms, legs, knees, wrists, feet, etc..
+      Note that users can only wear ONE item of any given armour type at
+      a time.
+
+MASS
+      The mass, in kilograms, of the item. Yes, you can use decimals
+      (eg: 1.5) if needed. For reference, 1 kilogram is about 2.2 lbs.
+
+VOL
+      The volume, in cubic feet, of the item. Again, decimals are okay.
+
+KJ
+      The amount of kilojoules of potential energy that the item contains.
+      
+VAL
+      The 'real' value of the item, in Cryl (the monetary unit of the game).
+      Stores will end up marking up (and marking down) the
+      item prices based on this VALue. Value is all priced along the
+      notion that a refreshing can of distilled salp (akin to a can of
+      20th-century Pepsi) can be purchased for 3 Cryl.
+      
+ENCHANTED
+      Some items may end up decaying with time. An enchanted item won't
+      decay. This is currently unused, so just ignore it. Assume that if
+      you don't assign ENCHANTED, ENCHANTED is set to zero.
+      
+WC
+      The weapon class of the item. This gives a random bonus to each
+      hit the user makes while wielding the item, with a value from
+      0 to WC. The item's mass/volume (and maybe KJ) will automatically
+      play a part in the item's combat info.
+
+DIGEST
+      Tells whether or not an item is digestible. The standard object
+      has DIGEST set to zero, so only set it (to 1) if you want it to
+      be digestible.
+
+FLAM
+      Determines whether or not an item is flammable. Defaults to zero
+      (not flammable) standard. If the item is flammable, the value
+      indicates the percentage chance (1-100) that the item will
+      ignite.
+
+FPAHD TPAHD
+FPSHD TPSHD
+      These are the different hit descriptions that the item makes.
+      
+      These words will help fill in the form:
+        first-person: "You [whatever] your victim for 3 damage!"
+        third-person: "Plat [whatever] his victim for 3 damage!"
+        
+      FPAHD = First-person PAst Hit Description
+              (eg: hurdled at, sponged, etc)
+      FPSHD = First-person PreSent Hit Description
+              (eg: hurdle at, sponge, etc)
+      TPAHD = Third-person PAst Hit Description
+              (eg: hurdled at, sponged, etc)
+      TPSHD = Third-person PreSent Hit Description 
+              (eg: hurdles at, sponges, etc)
+      
+      If you don't assign any of these values, they will usually
+      preset to either the object's description, or the ever-popular
+      'hit' :-)
+      
+ROT
+      If you want the item to rot away (like a body part would),
+      use this variable. The argument has to be in the form of
+      "time + (seconds from creation that it decays)".
+      For example, if you wanted the item to disappear 60 seconds
+      after creation, your ROT information might look like:
+        
+          ('ROT', time+60)
+          
+      Note that even though it's set to die 60 seconds after
+      creation, the game does NOT check its existance that
+      frequently. This may change in the future, but currently
+      you can expect the game to check it only once every
+      10-30 minutes. ROTting is designed mainly for bodyparts
+      and other unimportant objects. Once an object has rotted,
+      it's gone.
+
+### $i->exp_distribute( experience ) ###
+
+This will distribute experience amongst ALL of the item's stats.
+For example, if every object has 17 substats and you distributed
+17000 exp amongst them, each stat would have 1000 exp to it.
+It is the easiest way to set the stats of all aspects of the items
+quickly. If you want some stats to be different, try doing a
+stats_change after (or even instead of) this. Note that this does
+not ADD exp, it SETS the exp values.
+
+### $i->stats_allto ( value ) ###
+
+Similar to exp_distribute. If you want a character of level 5, you
+*could* call: $i->stats_allto(5); This sets all of its stats to 5.
+You might use this one if you know the level you want your item/npc,
+but don't know how much experience to give it.
+
+### A quick word about object stats ###
+
+Stats obviously matter to an NPC or Player. If it's an item that
+has certain stats, however, they are equally important. If a player
+wears (or equips!) any given item, the equipment's stats will be added
+to the player's stats!
+
+### $i->stats_change( statnum, value [, statnum, value,..] ) ###
+
+This changes any individual statnum so that its value is whatever
+you give it (eg: "Change stat number 19 (physical defense) to
+a value of 10 (pretty cruddy)").
+
+Here's a (hopefully accurate) list of statnums for each substat.
+
+  KNO             MAJ             DEF
+   6) Mechanical  10) Offensive   19) Physical
+   7) Social      11) Defensive   20) Energy
+   8) Medical     12) Elemental   21) Mental
+   9) Combat      22) Mental
+
+  CHA             AGI             STR
+  13) Appearance  15) Upper Body  17) Upper Body
+  14) Attitude    16) Lower Body  18) Lower Body
+
+If I wanted the item's magical defense to be 31, I'd say:
+
+     $i->stats_change(11, 31);
+
+If I wanted to change more than that, I could just keep appending
+stuff onto it:
+
+     $i->stats_change(11, 31, 16, 32, 18, 1);
+
+If that's too confusing, you can write it up another way (though
+it does the same thing):
+ 
+     $i->stats_change(11 => 31, 16 => 32, 1 => 1);
+
+### $i->wstats_change( statnum, value [, statnum, value,..] ) ###
+
+This is very similar to stats_change. The "W" stands for "Weapon". If a player wears an item, it will add the item's regular stats (as listed above) to those of the players. We only add the stats when the item is worn because all items are technically wieldable, and it wouldn't make much sense to get a big bonus wielding some armour if you're not wearing it.
+
+To change this, when the item is used as a weapon ("equipped"), it will add these stats [instead]. It works the same way as wstats_change...except..
+
+Note that like changing regular stats you can *not* change the 6 main stats. You'll have to change each substat separately. It's not good practice to raise mainstats too high anyway.
+
+The WSTAT information is stored differently than the regular STATs, mainly as a space-saver. You won't notice any difference, though. Everything you can do with stats_change is possible through wstats_change (you're just changing other variables ;-)).
+
+### a word about quotes ###
+
+If you have something quoted, (eg: 'John's dog looks friendly!') and
+it contains an apostrophe (or more), you'll need to add a literal
+sign so that it all works properly. For this example, you'd change
+the string to: 'John\'s dog looks friendly!' instead.

@@ -1,0 +1,4 @@
+N=2822&E=2823&NOMOB=1&MAXH=2&ROOM=2821&BIRTH=1109417403&OWN=virus&STATIC_ID=1141181001071191&DESC=A small house in the city edge. Its pink shutters and blue roof clash at the eyes glance.&NAME=virus's house&TYPE=-1&CRYL=0
+S=2821&OWN=virus&MAXH=2&STATIC_ID=1051071131201151&ROOM=2822&NAME=virus's powdering room&DESC=This room has been created from out of the void.&BIRTH=1109420503&TYPE=-1&CRYL=0
+W=2821&U=2824&OWN=virus&STATIC_ID=1101111211101091&TER=19&BANK=&ROOM=2823&NAME=Virus Love Den&DESC=The den is lit up buy some tacky red lights randomly placed about the room. A oversized metal framed bed lies agains one wall, its frame bent and twiseted from years of use. Posters of oliy men hang from the walls with lipstick marks on most of them.&DB=&BIRTH=1109420570&TYPE=-1&TERRAIN=19&CRYL=0
+D=2823&OWN=virus&MAXH=2&STATIC_ID=118981191011091&TER=&BANK=&ROOM=2824&NAME=Winding stairs&DESC=This room has been created from out of the void.&DB=&BIRTH=1109422678&TYPE=-1

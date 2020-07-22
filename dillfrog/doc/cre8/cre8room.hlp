@@ -1,0 +1,92 @@
+ooo Room Creation ooo
+
+I'm not sure which way is the best way of documenting room creation. There are 3 ways to interface room information, so far:
+
+   1) Opening the "flatfile" in a text editor.
+   2) Using the RVS command (not recommended unless you know what you're doing).
+   3) Using the chisel interface.
+   
+Guess I'll start with chisel.
+
+
+ooo CHISEL ooo
+
+If you have an ADMIN flag, you're able to use the chisel commands. This may be changed to a BUILDER flag, but somehow I doubt we'll need to. Here's a list of  commands and what they do:
+
+command: crex
+english: CReate EXit
+ syntax: crex <direction>
+   args: <direction>: direction you want "paved". Can be N, E, S, W, SW, SE, NW, NE, U, or D. Note that it does not recognize the verbose forms, such as north, east, south, etc. Case-insensitive.
+  about: This function creates an exit in any of the 10 possible directions, as you specify. If a room exists, spatially, in that direction, it will link the two rooms, exit-wise. (For example, go north, east, south. If you go west, you *should* end up in the room you started in, not some other room..unless it were a staircase or something).
+
+command: crow
+english: CReate One-Way [exit]
+ syntax: crow <direction>
+   args: <see crex>
+  about: Same as crex, only that it creates a one-way exit instead. For example, if you "crow n", it may create an exit going north, but once you go north, the room would read "There is no escape!" (no path going back south). THIS COMMAND IS NOT CODED BUT CAN BE ADDED PROMPTLY IF ANYONE REQUESTS IT.
+
+command: desc
+english: set DESCription
+ syntax: desc <description>
+         desc <description number>
+   args: <description>: your room description; for example: "Trees grow beside the soil beneath you. Your ears pick up the scampering of little feet...etc".
+  about: "desc <description>" changes the room description to your new description. If you use a number instead of description, it will set the room description to a description from the description table (see "descs" for more info). Note that the description table changes constantly (but most drastically each time the game restarts), so be sure to double-check and make sure that the description you wanted was what made it into your room :-).
+
+command: descs
+english: DESCriptionS
+ syntax: descs
+         descs <beginning description number>
+         descs <beginning description number> <ending description number>
+  about: Shows descriptions from the description table, and their corresponding numbers. The description table was created so that objects save space if they share the same description. This also makes it easy to create similar rooms at a greater speed (by reusing the descriptions). See "desc" for more info on setting room descriptions.
+
+command: title
+english: set room TITLE
+ syntax: title <text>
+   args: <text>: The title for your room. This is shown above the description.
+  about: The title of the room is actually stored under the NAME information in the room. That shouldn't matter to you, though, unless you get the urge to go RVS'ing (don't, anyway!). There are a few guidelines to creating titles, so that the realm looks consistant. They are:
+
+       o Try not to make the titles too long. Consider it a brief description of what's in the room. There may be an option to players so that they only see the title and exits (omitting the description), so let's still make it useful to the players.
+
+       o All words should be capitalized except words such as: to, of, and.
+
+       o Avoid starting titles with articles (such as A or The). For example, "The Entrance to Durmouth" *should* read, "Entrance to Durmouth". Similarly, "A Giant Hole" or "An Elephant House" should read "Giant Hole" and "Elephant House" respectively.
+
+More guidelines may be added later, as needed/requested.
+
+Note that most of the chisel commands will block you from using them if you are not the "owner" of the room. How does this work? The room has a variable called OWN. If it does not match your player's GRP information, the game won't let you change stuff in the room. This is more of a precaution than a restriction, since at the time of writing these docs (7/11/98), admins can easily change their group with the CHGRP <groupid> command, or alternately change the room's OWN with the RVS command.
+
+ooo RVS ooo
+
+RVS is very simply-coded. Too simply, in fact. It currently does not check to see if you're doing malicious stuff, or if your RVS will crash the game, the flatfile, the realm..you get the idea. That's why I recommend that nobody uses it but myself (Plat, coder) - 'cause I (usually) know what I'm doing.
+
+RVS works in the form of "RVS <roomtag> <value>". For example, if you wanted to change the room's gore level to 0, you might type "RVS gor 0", since GOR is the tag for the room's gore level. You'd never want to change it, but it's an example. In fact, the game doesn't even save GOR information onto the flatfile.
+
+Now that I've taunted you with useless code, here's some stuff that RVS was actually meant to be used for. Still, if you need any of these, you're better off writing me or requesting it from me (rocksupport@zilla.net) - and I'll do it for you.
+
+Note that this documentation will change from time to time as I add more RVS-related stuff, and/or more options are added to their functions below.
+
+                     - STORES - 
+ note: all stores are created from the objbase->[6] store object. they will all carry the same description unless requested.                    
+ 
+ STORE [REQUIRED] - The store id. More than one room can point to the same store id. This will make the same store accessible in more than one room. Good for inter-planar trade :). This id can be a string, to be easier on the coding-eyes, but integers work too. Once it's read/saved from the flatfile once, it turns into a number (objid).
+
+ SNAME [optional] - The store's name
+
+ SDB [optional] - The store's DB id number (so that items or whatever can be spawned).
+
+                     - PORTALS - 
+ note: all portals will be invisible. I'll add an invisibility flag if one is requested.
+ 
+ PORTAL [REQUIRED] - The portal id. All portals with the same id will randomly go to each other. If you want a "guaranteed" passage, then only use two portals with each id.
+
+ PNAME [REQUIRED] - The portal's name. Keep in mind that this is what people will be "enter"ing and/or "go"ing.
+
+ PDESC [REQUIRED] - The portal's description. Players will see this when they look at the portal.
+
+                     - ITEMS - 
+ ITEMSPAWN - A list of items.bse numbers that are spawned into the room after the room's created. An example itemspawn variable might be: "0,1,3,1,1". Note that each itemid is delimited with a comma.
+
+ooo FLATFILE ooo
+
+Documentation will be added if requested - I dont think anyone'll be using the flatfile stuff anyway. It's very similar to the R1 flatfile, only it's interpreted in as objects and stuff this time.
+

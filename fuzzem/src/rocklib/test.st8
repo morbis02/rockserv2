@@ -1,0 +1,2 @@
+$cap = "What is your name?\n";$sline++;
+$cap = "Hi, $cmd!\n";$sline++;

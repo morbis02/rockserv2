@@ -1,0 +1,7 @@
+You slap yourself on the cheek.
+[action] %S slaps %MSself on the cheek.
+You slap %R on the cheek.
+[action] %S slaps you on the cheek.
+[action] %S slaps %R on the cheek.
+You slap everyone on the cheek for their rude behaviour.
+[action] %S slaps everyone on the cheek for no apparent reason.

@@ -1,0 +1,52 @@
+use strict;
+BEGIN { do "const_stats.pm"; }
+#
+# polearms
+#
+$main::objbase->[693] = sub { my $i = item->new('NAME', 'oak spear', 'VAL', 100, 'VOL', 2, 'TPSHD', 'jabs', 'FPAHD', 'jabbed', 'TPAHD', 'jabbed', 'FPSHD', 'jab', 'MASS', 10, 'WC', int(10 + rand(20)), 'DESC', 'This spear is designed to be more of an offensive thrusting weapon than a defensive parrying weapon. Its bulk and its five-foot length makes it difficult to swing with any effectiveness. However, when attacking, the added weight of the spear\'s thick body adds to its impact, allowing it to pierce thin armor with its wooden tip.'); return($i); };
+$main::objbase->[694] = sub { my $i = item->new('NAME', 'iron pike', 'VAL', 300, 'VOL', 2, 'TPSHD', 'jabs', 'FPAHD', 'jabbed', 'TPAHD', 'jabbed', 'FPSHD', 'jab', 'MASS', 15, 'WC', int(17 + rand(20)), 'DESC', 'A hooked iron spearhead, affixed firmly to a long shaft of mahogany. This pike is designed to be long enough to cause damage from outside the reach of a sword, but short enough to avoid being cumbersome. The pike\'s tip has a thin point for piercing armor with thrusts, and a hook-end for pulling and tearing.'); return($i); };
+$main::objbase->[695] = sub { my $i = item->new('NAME', 'poleaxe', 'VAL', 800, 'VOL', 2, 'TPSHD', 'hacks', 'FPAHD', 'hacked', 'TPAHD', 'hacked', 'FPSHD', 'hack', 'MASS', 15, 'WC', int(24 + rand(20)), 'DESC', 'Like most axes, this weapon has a heavy steel blade mounted near its top. Unlike most other axes, however, its handle is nearly six feet long. This gives its wielder much more swinging leverage and results in a harder hitting weapon. The axe\'s blade is narrow, further increasing its hitting power and allowing it to cleave through armor with little difficulty.'); return($i); };
+$main::objbase->[696] = sub { my $i = item->new('NAME', 'broad-faced halberd', 'VAL', 2000, 'VOL', 2, 'TPSHD', 'hacks', 'FPAHD', 'hacked', 'TPAHD', 'hacked', 'FPSHD', 'hack', 'MASS', 20, 'WC', int(30 + rand(20)), 'DESC', 'The pinnacle of versatility in a polearm, this halberd has been designed to fulfill many roles. Its primary asset is a broad axe-blade. Adding to the weapon\'s arsenal, a spear point has been mounted to the top of the halberd, and a hook has been affixed opposite the axe-blade. Adding to the three piercing surfaces, the opposite end of the halberd\'s shaft has been capped with iron, creating a blunt smashing weapon.'); return($i); };
+$main::objbase->[697] = sub { my $i = item->new('NAME', 'hooked scythe', 'VAL', 4000, 'VOL', 2, 'TPSHD', 'reaps', 'FPAHD', 'reaped', 'TPAHD', 'reaped', 'FPSHD', 'reap', 'MASS', 20, 'WC', int(35 + rand(30)), 'DESC', 'A long sabre-like blade affixed to the end of a cedar shaft. The shaft is about six feet long and just thick enough to provide balance for the enormous blade on the opposite end of the shaft. The blade itself extends outwards at a right angle to the shaft, and is itself a full three feet long. If wielded properly by a skilled combatant, this scythe is more than capable of relieving an opponent of his extremities.'); return($i); };
+#
+# bob's newbie armor
+#
+$main::objbase->[698] = sub { my $i = item->new('NAME', 'crested sallet', 'ATYPE', 'head', 'VAL', 250, 'VOL', 1, 'AC', 5, 'MASS', 3, 'DESC', 'A thick crest of horse hair dyed blue dominates this bronze helmet. The crest is mounted firmly to the top of the helm, running its length from front to back. The helmet has no visor, but it provides extra protection to the back of the head.'); $i->stats_change(DPHY, 2); return($i); };
+$main::objbase->[699] = sub { my $i = item->new('NAME', 'bronze breastplate', 'ATYPE', 'torso', 'VAL', 350, 'VOL', 1, 'AC', 23, 'MASS', 10, 'DESC', 'A smooth plate of bronze, carefully formed into a loose-fitting breastplate. The outside surface has been polished to a high sheen, with only a few scruffy dings marring the surface. The inside has been covered in a thin leather, providing comfort as well as minimal padding from blunt-faced blows.'); $i->stats_change(DPHY, 4); return($i); };
+$main::objbase->[700] = sub { my $i = item->new('NAME', 'bronze kite shield', 'ATYPE', 'off-hand', 'VAL', 350, 'VOL', 1, 'AC', 15, 'MASS', 10, 'DESC', 'Fairly simple in design, this bronze plate forms a rough pentagonal shape, squared off at the top and tapering down into a point near the bottom. Extra strips of bronze have been riveted to the face of the shield, forming a striped pattern. Two simple strips of soft leather provide a grip for the shield.'); $i->stats_change(DPHY, 2); return($i); };
+$main::objbase->[701] = sub { my $i = item->new('NAME', 'bronze greaves', 'ATYPE', 'feet', 'VAL', 100, 'VOL', 1, 'AC', 3, 'MASS', 5, 'DESC', 'Covering from just below the knee all the way to the foot, this pair of boots provides a tradeoff of protection for the added burden of movement created by the thick armor. Each boot is made up of two sections, with a single pivot near the ankle providing minimal flexibility.'); $i->stats_change(DPHY, 1); return($i); };
+#
+# bob and sneeth, the dummy 'hit me for testing purposes' npc
+#
+$main::objbase->[702] = sub { my $i = npc->new('SENT', 1, 'IMMORTAL', 1, 'NAME', 'Bob', 'VOL', 5, 'MASS', 55, 'DESC', 'A pudgy, slightly balding man, sitting next to the plaza\'s fountain. He sits contentedly and watches traders pass through his shops.'); $i->gender_set('M'); $i->stats_allto(15); return($i); };
+$main::objbase->[703] = sub { my $i = item->new('NAME', 'heavy oak post', 'VAL', 400, 'TPSHD', 'crushes', 'VOL', 10, 'FPAHD', 'crushed', 'TPAHD', 'crushed', 'MASS', 80, 'FPSHD', 'crush', 'WC', 120, 'DESC', 'An extremely heavy oak post, designed more to protect the target than to aid the wielder.'); return($i); };
+$main::objbase->[704] = sub { my $i = item->new('NAME', 'mithril shackles', 'ATYPE', 'feet', 'VAL', 10000, 'VOL', 1, 'MASS', 50, 'DESC', 'A set of cast shackles, worn smooth from hundreds of years of imprisonment of all manner of mystical beasts. Runes carved into the shackles sap away its wearer\'s power and prevent any chance of release.'); return($i); };
+$main::objbase->[705] = sub { my $i = item->new('NAME', 'mithril manacles', 'ATYPE', 'wrists', 'VAL', 10000, 'VOL', 1, 'MASS', 50, 'DESC', 'A set of cast shackles, worn smooth from hundreds of years of imprisonment of all manner of mystical beasts. Runes carved into the shackles sap away its wearer\'s power and prevent any chance of release.'); return($i); };
+$main::objbase->[706] = sub { my $i = npc->new('NOSICK', 1, 'SENT', 1, 'NAME', 'Sneeth', 'BASEH', 300000000, 'VOL', 50, 'MASS', 550, 'HOSTILE', 0, 'DESC', 'A massive, emerald-scaled dragon, imprisoned for eternity on the cursed plane of Zo\'sor. A shadow of its former self, it sits listlessly in this chamber. Thick shackles bound to its fore and hind legs sap away its power, preventing it from escaping. Its forearms are clasped firmly around an oak beam that runs deep into the cavern floor.'); $i->stats_allto(15); $i->item_spawn(703, 704, 705); return($i); };
+
+$main::objbase->[707] = sub { my $i = item_portal_monitor->new('DLIFT', 0, 'CAN_LIFT', 0, 'NAME', 'portal monitor', 'NODUST', 1); return($i); };
+$main::objbase->[708] = sub { my $i = item_arena_team_splitter->new('VOL', 1, 'MASS', 50, 'CAN_LIFT', 1, 'DLIFT', 1, 'NAME', 'sphere of disorientation', 'DESC', 'A large orb, about a foot or so in diameter. Its surface is cloudy but translucent, like smoked glass. Currents of sapphire energy swirl underneath the sphere\'s surface with such violence that the sphere occasionally lurches to one side or the other, as if struggling to contain its power.', 'USES', 1); return($i); };
+$main::objbase->[709] = sub { my $i = item->new('NAME','bomb suit' ,'DESC', 'It\'s not da bomb, it\'s da suit. It resists some exlosivisionage.', 'ATYPE' ,'torso' ,'MASS' ,'1.5' ,'VOL' ,'2.2' ,'KJ' ,'100' ,'VAL' ,'2' ,'AC' ,int(10 + rand(2)) , 'FLAM_RESIST', 0.8); $i->stats_change(20,1);  return($i); };
+
+
+
+$main::objbase->[710] = sub { my $i = npc_spectral_monolith_guardian->new('SENT', 1, 'NAME', 'Auroral Paladin', 'RACE', $main::rock_stats{'monolith_spectral'}, 'MONOLITH', 'monolith_spectral', 'BASEH', 300_000, 'WC', 500, 'KEXP', 345, 'TPSHD', 'jabs', 'VOL', 10, 'FPAHD', 'jabbed', 'TPAHD', 'jabbed', 'DWEAPNAME', 'jabs', 'MASS', 350, 'FPSHD', 'jab', 'DESC', 'Roughly human in shape, the auroral paladin stands about fifteen feet tall. Beams of light seem to emanate from all around it, making it visible only as a dark silhouette. A shimmering spear, tipped with a massive diamond, rests easily in the guardian\'s hands. It stands dutifully before the monolith, ready to destroy any who dare contest it.'); $i->stats_allto(350); return($i); };
+
+$main::objbase->[711] = sub { my $i = mana_leech->new('NAME','mana leech' ,'DESC', 'Hungry for knowledge, hungry for power. This leech sucks mana for one ten-millionth of an hour.', 'MASS' ,'0.5' ,'VOL' ,'2.2','VAL' ,'2', 'GUARANTEED_THROW', 1);   return($i); };
+
+$main::objbase->[712] = sub { my $i = item->new('NAME','hug' ,'DESC', 'Full of warmth, the average-sized hug sports fine brown stretchy fabric hug-straps, buckled with a synthetic leather smile. A timeless classic. One size fits all.', 'ATYPE' ,'hugzone' ,'MASS' ,'1.5' ,'VOL' ,'2.2' ,'VAL' , 1000 ,'AC', 7 ,'FLAM' ,'10' , 'DBLUN' ,'3' ,'DSHAR' ,'2'); $i->stats_change(14,20); $i->stats_change(13,2); $i->stats_change(21, -20);  return($i); };
+
+#$main::objbase->[711] = sub { my $i = item_->new('DLIFT', 0, 'CAN_LIFT', 0, 'NAME', '', 'NODUST', 1); return($i); };
+
+#
+#
+#
+
+# set up the stores for bob's wacky commercial district
+#
+@{$main::db->[105]} = ('Deke\'s Daggers', 54..56);
+@{$main::db->[106]} = ('Thor\'s Polearms', 693..697);
+@{$main::db->[107]} = ('Bronzeware Unlimited', 698..701);
+@{$main::db->[108]} = ('Bloodbath and Beyond', 48, 3, 49, 2);
+@{$main::db->[109]} = ('Ye Olde Doughnut Shoppe', 52, 289, 89, 136..141);
+@{$main::db->[110]} = ('The Blinking Diode', 575..578);

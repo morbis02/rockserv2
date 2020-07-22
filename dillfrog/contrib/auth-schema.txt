@@ -1,0 +1,13 @@
+-- For the unofficial sql_auth.pm module
+-- MySQL-specific.
+
+CREATE TABLE accounts (
+  uin int unsigned NOT NULL auto_increment,
+  userid varchar(40) NOT NULL,
+  userid_formatted varchar(40) NOT NULL,
+  gender char(1) NOT NULL,
+  email varchar(255) NOT NULL,
+  password varchar(40) NOT NULL,
+  prefer_censor tinyint NOT NULL,
+  PRIMARY KEY (uin)
+) TYPE=MyISAM;

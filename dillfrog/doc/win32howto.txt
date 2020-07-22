@@ -1,0 +1,128 @@
+I used Crimson Editor to edit all files in this guide.
+Windows XP RockServ Installation guide
+Download ActiveState Perl
+Install ActiveState Perl
+Start->All Programs->ActiveState Perl->Perl Package Manager
+In the window that opens type:
+install MLDBM
+install DBI
+install DB_File
+install DBD-mysql
+install Lingua::Ispell
+exit
+
+Download Mysql 4.1.7 or later
+Install Mysql
+Run MySQL Server Instance Configuration Wizard
+Standard Configuration
+Install As Windows Service
+Include Bin Dir
+create a root password
+check root may only log in from localhost
+Execute
+
+Download or CVS the rockserv source
+This is going to expect that you got it from the same location as where the logs for irc are stored
+extract the contents of rockserv2-current-cvs.tar.gz to C:\
+Start->run->cmd
+cd \
+C:\>cd rockserv2
+C:\rockserv2>mkdir www
+C:\rockserv2>cd www
+C:\rockserv2\www>mkdir help
+C:\rockserv2\www>mkdir admin
+C:\rockserv2\www>cd help
+C:\rockserv2\www\help>mkdir courses
+C:\rockserv2\www\help>cd ..
+C:\rockserv2\www>cd admin
+C:\rockserv2\www\admin>mkdir logs
+C:\rockserv2\www\admin>cd ..
+C:\rockserv2\www>cd ..
+C:\rockserv2>cd src
+C:\rockserv2\src>mkdir Dillfrog
+C:\rockserv2\src>copy c:\rockserv2\contrib\sql_auth.pm c:\rockserv2\src\Dillfrog
+        1 file(s) copied.
+C:\rockserv2\src>cd Dillfrog
+C:\rockserv2\src\Dillfrog>rename sql_auth.pm Auth.pm
+C:\rockserv2\src\Dillfrog>copy c:\rockserv2\contrib\dummy_mail.pm c:\rockserv2\src\Dillfrog
+        1 file(s) copied.
+C:\rockserv2\src\Dillfrog>rename dummy_mail.pm Mail.pm
+C:\rockserv2\src\Dillfrog>cd ..
+C:\rockserv2\src>copy c:\rockserv2\contrib\r-allrooms.txt c:\rockserv2\src
+        1 file(s) copied.
+
+In a text editor of your choice create a file called 
+Dillfrog.pm
+and on the first line type
+package Dillfrog; 1;
+then save it in c:\rockserv2\src
+
+<thyrr> find "dillfrog.accounts" in the .pm files and replace it with "r2.accounts"
+<thyrr> Files include: news_man.pm, rockmaint.pm, rockobj2.pm
+edit in a text editor of your choice (Crimson Editor) remeber to save changes and close
+
+now back to the command prompt
+mysql -u root -p
+CREATE DATABASE r2;
+GRANT ALL ON r2.* TO rockserv@localhost IDENTIFIED BY 'password_goes_here';
+\q
+mysql -u rockserv -p r2 < C:\rockserv2\doc\r2_database_schema.txt
+Enter password: ********
+mysql -u rockserv -p r2 < C:\rockserv2\contrib\auth-schema.txt
+Enter password: ********
+mysql -u rockserv -p r2 -e "INSERT INTO r2.accounts VALUES (1,'rockserv', 'RockServ', 'F', 'email@whatever.com', '*******', 0);"
+Enter password: ********
+
+Edit rock_prefs.pm in a text editor to show the correct paths
+
+$main::base_code_dir = 'c:\rockserv2\src'; # NOTE: no trailing /.
+$main::base_web_dir = 'c:\rockserv2\www';
+$main::base_web_url = 'http://127.0.0.1';
+
+# email
+$main::mail_program="/usr/lib/sendmail -t";
+$main::rock_admin_email = $main::rock_support='email@email.com';
+$main::rock_serv_email = $main::rock_serv ='email@email.com';
+$main::pop_mail_server = 'localhost';
+$main::owner_name = "dillfrog.com";
+
+$main::db_username = 'rockserv';
+$main::db_password = '********';
+$main::db_name = 'r2';
+
+save changes
+
+Edit Auth.pm found in c:\rockserv2\src\Dillfrog
+
+# FIXME: doc
+sub db_get_conn {
+    #FIXME
+    my $db_name = "r2";
+    my $data_source = "DBI:mysql:$db_name:localhost";
+    my $username = "rockserv";
+    my $password = "********";
+    my $dbh = DBI->connect_cached($data_source, $username, $password, {'RaiseError' => 1, 'ChopBlanks' => 1, 'AutoCommit' => 1}) or confess "Could not connect to database!\n";
+    return $dbh;
+
+save changes
+
+back to command prompt and type 
+mysql -u root -p
+enter root password here << then type 
+SET password FOR rockserv@localhost = old_password('********');
+\q
+
+cd \
+cd c:\rockserv2\src
+perl rockserv2.pl
+
+rockserv should now be up and running
+
+connect using your favorite mud clinet to 127.0.0.1 port 4000
+you have one user right now and that is rockserv with a password of ********
+
+to make another character
+start->run->cmd
+
+mysql -u rockserv -p r2 -e "INSERT INTO r2.accounts VALUES (2,'characternamehere', 'Formatedcharacternamehere', 'F', 'email@whatever.com', 'passwordforcharhere', 0);"
+to make your char an admin log onto irc and ask how to do it other wise you have a semi singleplayer version of rock <- note lots of stuff doesnt work right

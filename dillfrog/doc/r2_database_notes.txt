@@ -1,0 +1,256 @@
+R2 Database Notes
+-------------------------
+
+This file is just a varied scribbling of notes related to the R2 database.
+Don't treat this as the "official" copy of the schema.
+
+
+
+(22:08:41) ionidas2: New Character--DONE
+---------------------------------------
+entry_text		varchar(255)
+UIN			int
+RACE
+
+Sell Item--DONE
+---------------------------------------
+entry_text		varchar(255)
+UIN_BY			int
+UIN_TO			int
+ITEM_ID			int
+SELL_PRICE		int
+
+Give Cryl--DONE
+---------------------------------------
+entry_text		varchar(255)
+UIN_BY			int
+UIN_TO			int
+ nothing nothing
+AMOUNT		int
+
+Give Item--DONE
+---------------------------------------
+entry_text		varchar(255)
+UIN_BY			int
+UIN_TO			int
+ITEM_ID			int
+
+PKill -- DONE
+---------------------------------------
+entry_text		varchar(255)
+UIN_KILLER		int
+KILLER_RACE     int
+UIN_VICTIM		int
+VICTIM_RACE     int
+
+Suspicious -- DONE
+---------------------------------------
+entry_text		varchar(255)
+suspicious UIN
+
+Monolith Capture --DONE 
+---------------------------------------
+entry_text		varchar(255)
+UIN_KILLER		int
+KILLER_RACE     int
+VICTIM_MONOLITH_REC int
+#### WARNING THERE IS NO INT ID YET:   MONOLITH_ID		int
+
+First Kill -- DONE
+---------------------------------------
+entry_text		varchar(255)
+UIN			int
+ITEM_ID			int
+
+Become General
+---------------------------------------
+entry_text		varchar(255)
+UIN_NEWGEN		int
+UIN_OLDGEN		int
+
+Become Soldier -- DONE
+---------------------------------------
+entry_text		varchar(255)
+UIN			int
+SOLDIER_RACE int
+
+Complete Quest
+---------------------------------------
+entry_text		varchar(255)
+UIN			int
+QUEST_ID		int
+
+
+Manage Alliance
+Make Alliance
+---------------------------------------
+entry_text		varchar(255)
+RACE1			int
+RACE2			int
+
+Complete Course --Done
+---------------------------------------
+entry_text		varchar(255)
+UIN			int
+not-done---COURSE_ID		int
+not-done---COURSE_COST		int
+not-done---RACE2			int
+
+Buy Item ??
+
+CREATE TABLE r2.event_log (
+    entry_id INTEGER UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    entry_type ENUM('New Character', 'Sell Item', 'PKill', 'Suspicious', 'Monolith Capture', 'First Kill', 'Become General', 'Become Soldier', 'Complete Quest', 'Make Alliance', 'Manage Alliance', 'Complete Course', 'Change PVP Level Restirction', 'Give Item', 'Give Cryl', 'Daily Win', 'Idea', 'Bug') NOT NULL,
+    entry_desc VARCHAR(255) NOT NULL,
+    uin_by INTEGER UNSIGNED,
+    arg_a INTEGER,
+    arg_b INTEGER,
+    arg_c INTEGER,
+    entry_date DATETIME NOT NULL
+);
+
+# delete from r2.event_log where entry_date < DATE_SUB(sysdate(), INTERVAL 30 DAY);
+
+CREATE TABLE item_names_by_rec(
+    item_id INTEGER NOT NULL PRIMARY KEY,
+    item_name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE on_ask_responses
+(
+    trigger_id INTEGER UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    item_id INTEGER NOT NULL,
+    response_match VARCHAR(255) NOT NULL,
+    response_type ENUM('Say', 'Echo', 'Command') NOT NULL,
+    response_text LONGTEXT NOT NULL,
+    match_order INTEGER UNSIGNED NOT NULL,
+	is_visible CHAR(1) NOT NULL DEFAULT 'Y'
+);
+
+CREATE TABLE auction_bids
+(
+    bid_id INTEGER UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    auction_id INTEGER UNSIGNED NOT NULL,
+    bidder_uin INTEGER UNSIGNED NOT NULL,
+    max_bid INTEGER UNSIGNED NOT NULL,
+	bid_date DATETIME NOT NULL
+);
+
+CREATE TABLE daily_scores (
+score_id INTEGER UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+score_date DATE NOT NULL,
+uin  INTEGER UNSIGNED NOT NULL,
+max_hp INTEGER(7) UNSIGNED ,
+max_mana INTEGER(7) UNSIGNED,
+dp FLOAT NOT NULL,
+exp_gained INTEGER UNSIGNED NOT NULL,
+level INTEGER(4) UNSIGNED NOT NULL,
+min_online INTEGER(6) UNSIGNED NOT NULL,
+pvpdeaths INTEGER(4) UNSIGNED NOT NULL,
+pvpkills INTEGER(4) UNSIGNED NOT NULL,
+race INTEGER(2) UNSIGNED NOT NULL,
+repu INTEGER(6) NOT NULL,
+turns_max  INTEGER(6) UNSIGNED NOT NULL,
+turns_used INTEGER(6) UNSIGNED NOT NULL,
+worth INTEGER(8) UNSIGNED NOT NULL,
+kno INTEGER(4) UNSIGNED NOT NULL,
+maj INTEGER(4) UNSIGNED NOT NULL,
+cha INTEGER(4) UNSIGNED NOT NULL,
+agi INTEGER UNSIGNED NOT NULL,
+str INTEGER(4) UNSIGNED NOT NULL,
+def INTEGER(4) UNSIGNED NOT NULL,
+kmec INTEGER(4) UNSIGNED NOT NULL,
+ksoc INTEGER(4) UNSIGNED NOT NULL,
+kmed INTEGER(4) UNSIGNED NOT NULL,
+kcom INTEGER(4) UNSIGNED NOT NULL,
+moff INTEGER(4) UNSIGNED NOT NULL,
+mdef INTEGER(4) UNSIGNED NOT NULL,
+mele INTEGER(4) UNSIGNED NOT NULL,
+mmen INTEGER(4) UNSIGNED NOT NULL,
+dphy INTEGER(4) UNSIGNED NOT NULL,
+dene INTEGER(4) UNSIGNED NOT NULL,
+dmen INTEGER(4) UNSIGNED NOT NULL,
+capp INTEGER(4) UNSIGNED NOT NULL,
+catt INTEGER(4) UNSIGNED NOT NULL,
+aupp INTEGER(4) UNSIGNED NOT NULL,
+alow INTEGER(4) UNSIGNED NOT NULL,
+supp INTEGER(4) UNSIGNED NOT NULL,
+slow INTEGER(4) UNSIGNED NOT NULL
+);
+
+
+CREATE TABLE auctions (
+   auction_id     INTEGER UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+   start_date      DATETIME NOT NULL,
+   end_date        DATETIME NOT NULL,
+   min_price      INTEGER UNSIGNED NOT NULL,
+   bid_increment  INTEGER UNSIGNED NOT NULL,
+   seller_uin INTEGER    UNSIGNED NOT NULL,
+   item_name   VARCHAR(128) NOT NULL,
+   item_desc   VARCHAR(255) NOT NULL,
+   item_data   LONGBLOB NOT NULL,
+   high_bid_uin INTEGER UNSIGNED,
+   high_bid   INTEGER UNSIGNED,
+   claimed_item CHAR(1) DEFAULT 'N',
+   returned_cryl CHAR(1) DEFAULT 'N'
+);
+
+
+CREATE TABLE altwatch ( ip varchar(15) not null,  namea varchar(20) not null, nameb varchar(20) not null, ldate datetime not null );
+
+CREATE TABLE PLAYERS(
+NAME VARCHAR(20),
+LEV INTEGER,
+KNO INTEGER,
+MAJ INTEGER,
+CHA INTEGER,
+AGI INTEGER,
+STR INTEGER,
+DEF INTEGER,
+WORTH INTEGER,
+REPU INTEGER,
+ADMIN CHAR(1),
+EMAIL VARCHAR(80),
+RACE INTEGER,
+PVPKILLS INTEGER,
+PVPDEATHS INTEGER,
+DP FLOAT,
+ARENA_PTS FLOAT,
+PW VARCHAR(60),
+LAST_SAVED DATETIME
+);
+
+CREATE UNIQUE INDEX NAME_IDX ON PLAYERS (NAME); 
+
+CREATE TABLE lottery(
+    name  VARCHAR(20) NOT NULL,
+    edate DATE        NOT NULL,
+    won   VARCHAR(20) NOT NULL,
+    CONSTRAINT pk_lottery PRIMARY KEY (name, edate)
+);
+
+CREATE TABLE mailing_list(
+    email VARCHAR(80) NOT NULL,
+    CONSTRAINT pk_mailing_list PRIMARY KEY (email)
+);
+
+CREATE TABLE bad_passwords (
+    ipc varchar(11) not null,
+    pdate date not null
+);
+# pdate should be sysdate() upon insertion
+
+CREATE TABLE rock_certs (
+    name varchar(30) not null,
+    c_type char(1) not null,
+    c_val int not null
+);
+
+select p.name
+from mailing_list m, PLAYERS p
+where m.email = p.email
+  AND p.cha > 40;
+
+select max(count(email))
+from players
+group by email;

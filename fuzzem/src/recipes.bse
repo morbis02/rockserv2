@@ -1,0 +1,15 @@
+# Quick cheat sheet:
+# @{$main::recipes->{'frog soup'}} = ('itemcreated1,itemcreated1,itemcreated1', 'SKILLS,SKILLS,SKILLS', 3 turns, 'You don\'t have the proper ingredients to prepare frog soup.', 'You prepare frog soup.', '%S prepares frog soup.', -4 (take away obj 4), 1 (only use object 1, leave alone));
+#
+
+@{$main::recipes->{'frog soup'}} = ('88', '', 20, 'You don\'t have the proper ingredients to prepare frog soup.', 'You prepare a bowl of cold, frog soup.', '%S prepares a tasty bowl of cold, frog soup.', -4,-4,-4, -89);
+@{$main::recipes->{'chocolate doughnuts'}} = ('137,137,137,137,137', '', 30, 'You don\'t have the proper ingredients to make a batch of chocolate doughnuts.', 'You prepare a batch of chocolate doughnuts.', 'A pleasant aroma fills the room as %S prepares a batch of chocolate doughnuts.', -139, -140, -141, 89, 142);
+@{$main::recipes->{'peach doughnuts'}} = ('136,136,136,136,136,136,136', '', 40, 'You don\'t have the proper ingredients to make a batch of peach doughnuts.', 'You prepare a batch of peach doughnuts.', 'A pleasant aroma fills the room as %S prepares a batch of peach doughnuts.', -139, -140, -52, -52, 89, 142);
+@{$main::recipes->{'plague ball'}} = ('267', '', 15, 'You don\'t have the proper ingredients to make a plague ball.', 'You pack an assortment of items together, creating a plague ball.', '%S combines a collection of disgusting ingredients, creating a plague ball!', -224, -269, -270);
+@{$main::recipes->{'monster lure'}} = ('266', '', 15, 'You do not have the correct items to create monster lure!', 'A cloud of foul smoke pours from the vial as you create monster lure.', 'A cloud of foul smoke pours from the vial as %S creates monster lure.', -269, -268, -155);
+@{$main::recipes->{'peach mush'}} = ('382', '', 20, 'You don\'t have the proper ingredients to mush peaches.', 'You mush the peaches together in your bowl.', '%S mushes some peaches in a clay bowl.', -52,-52, -89);
+@{$main::recipes->{'smelly paste'}} = ('564', '', 20, 'You don\'t have the proper ingredients to make smelly paste.', 'You mix together a glob of smelly paste.', 'The stench of sulfur fills the air as %S prepares a glob of smelly paste.', -565, -565, -553, -89, -554);
+@{$main::recipes->{'golden ruler'}} = ('363', '', 20, 'You don\'t have the proper ingredients to make a golden ruler.', 'You meld the plastic rulers together.', '%S melds %HS plastic rulers together to form a golden ruler.', -337, -337, -337);
+@{$main::recipes->{'mana leech'}} = ('711', '', 20, 'You don\'t have the proper ingredients to make a mana leech.', 'You tell the Dillfrog a story about the old days when there was no mana, and watch as the Dillfrog transforms.', '%S tells %HS Dillfrog about the simpler times, when mana didn\'t exist.', -4);
+
+1;

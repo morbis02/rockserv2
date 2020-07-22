@@ -1,0 +1,30 @@
+E=2999&OWN=kler&STATIC_ID=1011091011081111&ROOM=2998&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087292&TYPE=-1
+W=2998&E=3000&OWN=kler&MAXH=2&STATIC_ID=114971001011151&ROOM=2999&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087296&TYPE=-1
+W=2999&N=3001&S=3002&E=3003&OWN=kler&STATIC_ID=1051191001171071&ROOM=3000&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087299&TYPE=-1
+S=3000&E=3004&OWN=kler&STATIC_ID=104106104107971&ROOM=3001&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087350&TYPE=-1
+N=3000&E=3005&OWN=kler&STATIC_ID=1061191091201171&TER=&BANK=&ROOM=3002&NAME=shi-kul place&DESC=This room has been created from out of the void.&DB=&BIRTH=1112087359&TYPE=-1
+W=3000&E=3006&OWN=kler&MAXH=2&STATIC_ID=11711299120971&ROOM=3003&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087316&TYPE=-1
+W=3001&SE=3006&OWN=kler&STATIC_ID=1071081141221011&ROOM=3004&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087347&TYPE=-1
+W=3002&NE=3006&OWN=kler&MAXH=2&STATIC_ID=1191051111101181&TER=&BANK=&ROOM=3005&NAME=shi-kul place&DESC=This room has been created from out of the void.&DB=&BIRTH=1112087357&TYPE=-1
+W=3003&NW=3004&SW=3005&U=3007&OWN=kler&STATIC_ID=1061131101041171&ROOM=3006&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087320&TYPE=-1
+D=3006&E=3008&OWN=kler&STATIC_ID=1101021001021071&ROOM=3007&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087440&TYPE=-1
+W=3007&E=3009&OWN=kler&STATIC_ID=1211221191041151&ROOM=3008&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087578&TYPE=-1
+W=3008&SE=3011&NE=3012&E=3010&OWN=kler&MAXH=2&STATIC_ID=108104971081101&ROOM=3009&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087580&TYPE=-1
+W=3009&SE=3014&NE=3015&E=3013&OWN=kler&STATIC_ID=121118971171011&TER=&BANK=&ROOM=3010&NAME=shi-kul place&DESC=This room has been created from out of the void.&DB=&BIRTH=1112087590&TYPE=-1
+NW=3009&SE=3016&OWN=kler&STATIC_ID=114110991041221&ROOM=3011&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087723&TYPE=-1
+SW=3009&NE=3017&OWN=kler&STATIC_ID=1121151101141011&ROOM=3012&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087711&TYPE=-1
+W=3010&OWN=kler&MAXH=2&STATIC_ID=1111121041221221&ROOM=3013&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087592&TYPE=-1
+NW=3010&SE=3018&OWN=kler&STATIC_ID=118111991071131&ROOM=3014&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087666&TYPE=-1
+SW=3010&NE=3019&OWN=kler&STATIC_ID=102116121971161&ROOM=3015&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087619&TYPE=-1
+NW=3011&SW=3020&OWN=kler&STATIC_ID=1011201211001131&TER=&BANK=&ROOM=3016&NAME=shi-kul place&DESC=This room has been created from out of the void.&DB=&BIRTH=1112087725&TYPE=-1
+NW=3021&SW=3012&OWN=kler&MAXH=2&STATIC_ID=102118113102991&TER=&BANK=&ROOM=3017&NAME=shi-kul place&DESC=This room has been created from out of the void.&DB=&BIRTH=1112087713&TYPE=-1
+NW=3014&N=3022&OWN=kler&MAXH=2&STATIC_ID=1181081211171011&ROOM=3018&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087658&TYPE=-1
+SW=3015&S=3023&OWN=kler&STATIC_ID=98103121109981&TER=&BANK=&ROOM=3019&NAME=shi-kul place&DESC=This room has been created from out of the void.&DB=&BIRTH=1112087622&TYPE=-1
+NE=3016&OWN=kler&STATIC_ID=1131131221151131&ROOM=3020&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087728&TYPE=-1
+SE=3017&OWN=kler&STATIC_ID=119991051001111&ROOM=3021&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087716&TYPE=-1
+N=3024&S=3018&E=3025&OWN=kler&STATIC_ID=1071181101191091&TER=&BANK=&ROOM=3022&NAME=shi-kul place&DESC=This room has been created from out of the void.&DB=&BIRTH=1112087653&TYPE=-1
+N=3019&S=3024&E=3026&OWN=kler&STATIC_ID=991201091111031&ROOM=3023&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087626&TYPE=-1
+N=3023&S=3022&E=3027&OWN=kler&STATIC_ID=1121021221211061&TER=&BANK=&ROOM=3024&NAME=shi-kul place&DESC=This room has been created from out of the void.&DB=&BIRTH=1112087649&TYPE=-1
+W=3022&OWN=kler&STATIC_ID=1021201121051091&ROOM=3025&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087682&TYPE=-1
+W=3023&OWN=kler&STATIC_ID=111107971211011&TER=&BANK=&ROOM=3026&NAME=shi-kul place&DESC=This room has been created from out of the void.&DB=&BIRTH=1112087678&TYPE=-1
+W=3024&OWN=kler&MAXH=2&STATIC_ID=1031161001191221&ROOM=3027&NAME=shi-kul place&DESC=This room has been created from out of the void.&BIRTH=1112087679&TYPE=-1

@@ -1,0 +1,108 @@
+use strict;
+# set up multiple-arg commands.
+# NOTE: format for calling is &$cmdbase_obj->{'command'}(obj, playerwhodidit) (eg: "say hi": first arg: say. second arg: hi);
+#$main::cmdbase_obj->{'slodge'} = sub { return $_[0]->slodge; };
+$main::cmdbase_obj->{'mkaid'} = sub { if(!$_[1]->{'ADMIN'} && ($_[1]->{'TYPE'} == 1) ) { $_[1]->log_append("No.\n"); return; } return $_[0]->make_aid($_[1]); };
+$main::cmdbase_obj->{'mkcor'} = sub { if(!$_[1]->{'ADMIN'}) { $_[1]->log_append("No.\n"); return; } return $_[0]->bodypart_drop('corpse'); };
+$main::cmdbase_obj->{'mkwri'} = sub { if(!$_[1]->{'ADMIN'}) { $_[1]->log_append("No.\n"); return; } return $_[0]->bodypart_drop('wrist'); };
+$main::cmdbase_obj->{'mkhand'} = sub { if(!$_[1]->{'ADMIN'}) { $_[1]->log_append("No.\n"); return; } return $_[0]->bodypart_drop('hand'); };
+$main::cmdbase_obj->{'mkeye'} = sub { if(!$_[1]->{'ADMIN'}) { $_[1]->log_append("No.\n"); return; } return $_[0]->bodypart_drop('eye'); };
+$main::cmdbase_obj->{'getrec'} = sub { if(!$_[1]->{'ADMIN'}) { $_[1]->log_append("No.\n"); return; } $_[1]->log_append("{17}Item Record for {6}$_[0]->{'NAME'}\{17}: {16}".($_[0]->{'REC'} || 'none')."{17}\n"); return; };
+$main::cmdbase_obj->{'liquidate'} = sub {
+    # lame hack to let players auto-liquidate some of these NPCs
+    my $ok_npc = $_[0]->{'NAME'} =~ /^(?:Wandering Gypsy|Eldar Noblewoman)$/;
+    if ((!$_[1]->{'ADMIN'} || $_[0]->{'TYPE'} != 2) && !$ok_npc) {
+        $_[1]->log_append("No.\n"); return;
+    }
+    foreach my $i ($_[0]->inv_objs()) {
+        next if ($i->{'WORN'} || $_[0]->{'WEAPON'} == $i->{'OBJID'});
+        $_[0]->{'CRYL'} += int (.25 * $i->{'VAL'}); $i->obj_dissolve();
+    }
+    $_[1]->log_append("{3}Consider it liquidated.\n"); # (Now has {13}$_[0]->{'CRYL'} {3}cryl)!\n");
+    return;
+};
+
+
+$main::cmdbase_obj->{'invite'} = sub {
+    my ($targ, $self) = @_;
+    return $self->log_append("{3}<<  You can only invite *players*.  >>\n") if($targ->{'TYPE'} != 1);
+ #   return $self->log_append("{3}<<  Admin only.  >>\n") unless $self->{'ADMIN'};
+    $self->group_invite($targ);
+};
+
+$main::cmdbase_obj->{'join'} = sub {
+    my ($targ, $self) = @_;
+    return $self->log_append("{3}<<  You can only join *players*.  >>\n") if($targ->{'TYPE'} != 1);
+ #   return $self->log_append("{3}<<  Admin only.  >>\n") unless $self->{'ADMIN'};
+    $self->group_join($targ);
+};
+
+$main::cmdbase_obj->{'checkidle'} = sub { if(defined($_[0]->{'@LCTI'})) { $_[1]->log_append("{1}$_[0]->{'NAME'} has been idle for {12}".(time - $_[0]->{'@LCTI'})."{1} seconds.\n"); } else { $_[1]->log_append("{1}How bout I don't, and we just pretend I did?\n"); } return(); };
+
+$main::cmdbase_obj->{'destroy'} = sub { if((!$_[1]->{'ADMIN'}) || ($_[0]->{'TYPE'}<0)||($_[0]->{'TYPE'}==1)) { $_[1]->log_append("No.\n"); return(0); } $_[1]->log_append("Removing object $_[0]->{'NAME'}.\n"); return $_[0]->obj_dissolve; };
+$main::cmdbase_obj->{'remrefs'} =  sub { 
+    my $cap = &main::ref_hier($_[0],0,'h');
+    if(!$_[1]->{'ADMIN'} || !$_[1]->{'ISABOB'}) { $_[1]->log_append("No.\n"); return; }
+    elsif ($cap) { $_[1]->log_append($cap); }
+    else { $_[1]->log_append("Odd - You have no refs.\n"); }
+  };
+$main::cmdbase_obj->{'remcode'} =  sub { 
+    if(!$_[1]->{'ADMIN'} || !$_[1]->{'ISABOB'}) { $_[1]->log_append("No.\n"); return; }
+    $_[1]->log_append($_[0]->obj_code(1));
+  };
+
+# THIS bugger might crash ;)
+#$main::cmdbase_obj->{'mkclone'} =  sub { 
+#    if(!$_[1]->{'ADMIN'} || !$_[1]->{'ISABOB'} || ($_[0]->{'TYPE'}==1) || ($_[0]->{'TYPE'}==-1)) { $_[1]->log_append("No.\n"); return; }
+#    my $c = $_[0]->obj_code(0);
+#    eval($c.' $i->stats_update; $i->power_up; $_[1]->inv_add($i);');
+#    $_[1]->log_append("{6}Cloned into your inventory.\n");
+#    $_[1]->room_sighttell("{16}$_[1]->{'NAME'} {6}clones $_[0]->{'NAME'}.\n");
+#  };
+  
+$main::cmdbase_obj->{'secure'} =  sub { 
+    my ($i, $self) = @_;
+    if(!$main::map->[$self->{'ROOM'}]->{'SECURITY'} || ($i->{'TYPE'}==-1) || !($i->can_be_lifted($self) && $self->can_lift($i)) ) { $self->log_append("Secure that? Here?\n"); return; }
+    if($self->stk_objsnum >= (3+$self->skill_has(18)*2)) { $self->log_append("{16}You cannot secure any more objects.\n"); return; }
+    if(!$self->inv_has($i)) {$self->log_error("You cannot secure what is not yours!"); return;}
+    my $c = $main::objs->{$i->{'CONTAINEDBY'}};
+    if($i->{'NOSAVE'}) { $self->log_error("You cannot secure $i->{'NAME'}."); return; }
+    if($i->{'UNIQUE'}) { $self->log_error("$i->{'NAME'} is an artifact, and cannot be secured."); return; }
+    if( ($i->{'WORN'}) && (!$c->item_hremove($i)) ){ return; }
+    if( ($i->{'EQD'}) && (!$c->item_hunequip) ){ return; }
+    $c->inv_del($i);
+    $self->stk_add($i);
+    $self->room_sighttell("{3}$self->{'NAME'} secures $i->{'NAME'} for safe-keeping.\n");
+    $self->log_append("{3}You have secured $i->{'NAME'}.\n");
+  };
+
+$main::cmdbase_obj->{'mindvisit'} = sub { return $_[1]->spell_mindvisit($_[0]); };
+$main::cmdbase_obj->{'blind'} = sub { return $_[1]->spell_blinding($_[0]); };
+$main::cmdbase_obj->{'nomouth'} = sub { return $_[1]->spell_nomouth($_[0]); };
+$main::cmdbase_obj->{'decapitate'} = sub { return $_[1]->skill_decapitate($_[0]); };
+$main::cmdbase_obj->{'appraise'} = sub { return $_[0]->appraisal_get($_[1]); };
+$main::cmdbase_obj->{'portents'} = sub { return $_[1]->spell_fortune($_[0]); };
+$main::cmdbase_obj->{'touch'} = sub { return $_[0]->on_touch($_[1]); };
+$main::cmdbase_obj->{'read'} = sub { return $_[0]->on_read($_[1]); };
+$main::cmdbase_obj->{'smash'} = sub { return $_[0]->smashed($_[1]); };
+$main::cmdbase_obj->{'bash'} = sub { return $_[0]->bashed($_[1]); };
+$main::cmdbase_obj->{'dig'} = sub { return $_[0]->dug($_[1]); };
+$main::cmdbase_obj->{'push'} = sub { return $_[0]->pushed($_[1]); };
+$main::cmdbase_obj->{'thank'} = sub { return $_[0]->thanked($_[1]); };
+$main::cmdbase_obj->{'deprecate'} = sub { return $_[0]->deprecated($_[1]); };
+$main::cmdbase_obj->{'salp'} = sub { return $_[0]->salp($_[1]); };
+$main::cmdbase_obj->{'digest'} = sub { return $_[0]->on_hdigest($_[1]); };
+$main::cmdbase_obj->{'meld'} = sub { return $_[0]->spell_flesh_meld($_[1]); };
+$main::cmdbase_obj->{'wind'} = sub { return $_[0]->on_wind($_[1]); };
+$main::cmdbase_obj->{'stock'} = sub { return $_[0]->item_stock($_[1]); };
+$main::cmdbase_obj->{'sell'} = sub { return $_[0]->item_sell($_[1]); };
+$main::cmdbase_obj->{'enter'} = sub { return $_[0]->on_enter($_[1]); };
+$main::cmdbase_obj->{'ignite'} = sub { return $_[0]->on_ignite($_[1]); };
+$main::cmdbase_obj->{'blow'} = sub { return $_[0]->on_blow($_[1]); };
+$main::cmdbase_obj->{'activate'} = sub { return $_[0]->on_activate($_[1]); };
+$main::cmdbase_obj->{'detab'} = sub { return $_[0]->on_detab($_[1]); };
+$main::cmdbase_obj->{'open'} = sub { return $_[0]->on_open($_[1]); };
+$main::cmdbase_obj->{'close'} = sub { return $_[0]->on_close($_[1]); };
+$main::cmdbase_obj->{'fuse'} = sub { return $_[0]->spell_fuse($_[1]); };
+
+1;

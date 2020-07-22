@@ -1,0 +1,6 @@
+$cap .= "Creating a new site account. Ok.\nPick a username:\n"; $sline++;
+$self->{'_USERID'} = $cmd; if ($cmd eq 'x') { $sname = "LOGIN"; $sline = 0; $continue = 1; } elsif($rockobj::auth_man->getUIN($cmd)) { $cap .= "Username already in use. Try another:\n"; } elsif (0) { $cap .= "Invalid name. Try another:\n"; } else { $cap .= "New password (not hidden):\n"; $sline++; }
+$self->{'_PASSWORD'} = $cmd; if (length($cmd) < 5) { $cap .= "Password too short. Enter a new password:\n"; } else { $cap .= "Confirm your password:\n"; $sline++; }
+if($cmd ne $self->{'_PASSWORD'}) { $cap .= "Password did not match. Enter a new password:\n"; $sline--;} else { $cap .= "Enter your email address:\n"; $sline++; }
+$self->{'_EMAIL'} = $cmd; my ($email_valid, $reason) = $rockobj::auth_man->isValidEmail($cmd); if(!$email_valid) { $cap .= $reason . "Try another:\n"; } else { $cap .= "Gender? (M/F)\n"; $sline++; }
+if($cmd =~ /[mfMF]/) { my ($status, $reason) = $rockobj::auth_man->createAccount($self->{'IP'}, $self->{'_USERID'}, $self->{'_PASSWORD'}, {'email' => $self->{_EMAIL}, 'gender' => $cmd}); if($status) {$cap .= "Congrats, you are now user #$status.\n"; $sname = "LOGIN"; $sline = 0; $continue = 1} else { $cap .= "ERROR\n"; $sname = "LOGIN"; $sline = 0; $continue = 1;} } else { $cap .= "Seriously. Gender? (M/F):\n"; }

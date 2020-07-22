@@ -1,0 +1,13 @@
+Quest Slots Used
+-------------------------------------------
+
+0: Eldar Noblewoman (set by woman in rockunit)
+1: Race-change quest (used by raceto command in rockracial; not really a quest, but it's similar enough that we used it here, since it's a one-timer).
+2: Antisin pear quest (set by antisin in rockunit)
+3: Powermonger (set by courses.bse)
+4: Truthseeker (set by courses.bse)
+5: Beastly Fuzzem (see items3.bse)
+6: Advanced powermonger (set by courses.bse)
+7: Advanced truthseeker (set by courses.bse)
+8: Kaine quest (set by rockunit.pm) (this isn't getting done anytime soon)
+9: Westland Bard Quest (set by items3.bse)

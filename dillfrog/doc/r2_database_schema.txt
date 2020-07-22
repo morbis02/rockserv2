@@ -1,0 +1,228 @@
+-- MySQL dump 9.07
+--
+-- Host: localhost    Database: r2
+---------------------------------------------------------
+-- Server version	4.0.12
+
+--
+-- Table structure for table 'PLAYERS'
+--
+
+CREATE TABLE PLAYERS (
+  NAME varchar(20) default NULL,
+  LEV int(11) default NULL,
+  KNO int(11) default NULL,
+  MAJ int(11) default NULL,
+  CHA int(11) default NULL,
+  AGI int(11) default NULL,
+  STR int(11) default NULL,
+  DEF int(11) default NULL,
+  WORTH int(11) default NULL,
+  REPU int(11) default NULL,
+  ADMIN char(1) default NULL,
+  EMAIL varchar(80) default NULL,
+  RACE int(11) default NULL,
+  PVPKILLS int(11) default NULL,
+  PVPDEATHS int(11) default NULL,
+  DP float default NULL,
+  ARENA_PTS float default NULL,
+  PW varchar(60) default NULL,
+  LAST_SAVED datetime default NULL,
+  UNIQUE KEY NAME_IDX (NAME)
+) TYPE=MyISAM;
+
+--
+-- Table structure for table 'altwatch'
+--
+
+CREATE TABLE altwatch (
+  ip varchar(15) NOT NULL default '',
+  namea varchar(20) NOT NULL default '',
+  nameb varchar(20) NOT NULL default '',
+  ldate datetime NOT NULL default '0000-00-00 00:00:00',
+  KEY idx_altwatch_namea (namea),
+  KEY idx_altwatch_nameb (nameb)
+) TYPE=MyISAM;
+
+--
+-- Table structure for table 'auction_bids'
+--
+
+CREATE TABLE auction_bids (
+  bid_id int(10) unsigned NOT NULL auto_increment,
+  auction_id int(10) unsigned NOT NULL default '0',
+  bidder_uin int(10) unsigned NOT NULL default '0',
+  max_bid int(10) unsigned NOT NULL default '0',
+  bid_date datetime NOT NULL default '0000-00-00 00:00:00',
+  PRIMARY KEY  (bid_id)
+) TYPE=MyISAM;
+
+--
+-- Table structure for table 'auctions'
+--
+
+CREATE TABLE auctions (
+  auction_id int(10) unsigned NOT NULL auto_increment,
+  start_date datetime NOT NULL default '0000-00-00 00:00:00',
+  end_date datetime NOT NULL default '0000-00-00 00:00:00',
+  min_price int(10) unsigned NOT NULL default '0',
+  bid_increment int(10) unsigned NOT NULL default '0',
+  seller_uin int(10) unsigned NOT NULL default '0',
+  item_name varchar(128) NOT NULL default '',
+  item_desc varchar(255) NOT NULL default '',
+  item_data longblob NOT NULL,
+  high_bid_uin int(10) unsigned default NULL,
+  high_bid int(10) unsigned default NULL,
+  claimed_item char(1) default 'N',
+  returned_cryl char(1) default 'N',
+  PRIMARY KEY  (auction_id)
+) TYPE=MyISAM;
+
+--
+-- Table structure for table 'bad_passwords'
+--
+
+CREATE TABLE bad_passwords (
+  ipc varchar(11) NOT NULL default '',
+  pdate date NOT NULL default '0000-00-00'
+) TYPE=MyISAM;
+
+--
+-- Table structure for table 'daily_scores'
+--
+
+CREATE TABLE daily_scores (
+  score_id int(10) unsigned NOT NULL auto_increment,
+  score_date date NOT NULL default '0000-00-00',
+  uin int(10) unsigned NOT NULL default '0',
+  max_hp int(7) unsigned default NULL,
+  max_mana int(7) unsigned default NULL,
+  dp float NOT NULL default '0',
+  exp_gained int(10) unsigned NOT NULL default '0',
+  level int(4) unsigned NOT NULL default '0',
+  min_online int(6) unsigned NOT NULL default '0',
+  pvpdeaths int(4) unsigned NOT NULL default '0',
+  pvpkills int(4) unsigned NOT NULL default '0',
+  race int(2) unsigned NOT NULL default '0',
+  repu int(6) NOT NULL default '0',
+  turns_max int(6) unsigned NOT NULL default '0',
+  turns_used int(6) unsigned NOT NULL default '0',
+  worth int(8) unsigned NOT NULL default '0',
+  kno int(4) unsigned NOT NULL default '0',
+  maj int(4) unsigned NOT NULL default '0',
+  cha int(4) unsigned NOT NULL default '0',
+  agi int(10) unsigned NOT NULL default '0',
+  str int(4) unsigned NOT NULL default '0',
+  def int(4) unsigned NOT NULL default '0',
+  kmec int(4) unsigned NOT NULL default '0',
+  ksoc int(4) unsigned NOT NULL default '0',
+  kmed int(4) unsigned NOT NULL default '0',
+  kcom int(4) unsigned NOT NULL default '0',
+  moff int(4) unsigned NOT NULL default '0',
+  mdef int(4) unsigned NOT NULL default '0',
+  mele int(4) unsigned NOT NULL default '0',
+  mmen int(4) unsigned NOT NULL default '0',
+  dphy int(4) unsigned NOT NULL default '0',
+  dene int(4) unsigned NOT NULL default '0',
+  dmen int(4) unsigned NOT NULL default '0',
+  capp int(4) unsigned NOT NULL default '0',
+  catt int(4) unsigned NOT NULL default '0',
+  aupp int(4) unsigned NOT NULL default '0',
+  alow int(4) unsigned NOT NULL default '0',
+  supp int(4) unsigned NOT NULL default '0',
+  slow int(4) unsigned NOT NULL default '0',
+  PRIMARY KEY  (score_id)
+) TYPE=MyISAM;
+
+--
+-- Table structure for table 'event_log'
+--
+
+CREATE TABLE event_log (
+  entry_id int(10) unsigned NOT NULL auto_increment,
+  entry_type enum('New Character','Sell Item','PKill','Suspicious','Monolith Capture','First Kill','Become General','Become Soldier','Complete Quest','Make Alliance','Manage Alliance','Complete Course','Change PVP Level Restirction','Give Item','Give Cryl','Daily Win','Idea','Bug') NOT NULL default 'New Character',
+  entry_desc varchar(255) NOT NULL default '',
+  uin_by int(10) unsigned default NULL,
+  arg_a int(11) default NULL,
+  arg_b int(11) default NULL,
+  arg_c int(11) default NULL,
+  entry_date datetime NOT NULL default '0000-00-00 00:00:00',
+  PRIMARY KEY  (entry_id)
+) TYPE=MyISAM;
+
+--
+-- Table structure for table 'game_server_settings'
+--
+
+CREATE TABLE game_server_settings (
+  name varchar(255) NOT NULL default '',
+  value varchar(255) NOT NULL default ''
+) TYPE=MyISAM;
+
+--
+-- Table structure for table 'item_names_by_rec'
+--
+
+CREATE TABLE item_names_by_rec (
+  item_id int(11) NOT NULL default '0',
+  item_name varchar(255) NOT NULL default '',
+  PRIMARY KEY  (item_id)
+) TYPE=MyISAM;
+
+--
+-- Table structure for table 'lottery'
+--
+
+CREATE TABLE lottery (
+  name varchar(20) NOT NULL default '',
+  edate date NOT NULL default '0000-00-00',
+  won varchar(20) NOT NULL default '',
+  PRIMARY KEY  (name,edate)
+) TYPE=MyISAM;
+
+--
+-- Table structure for table 'mailing_list'
+--
+
+CREATE TABLE mailing_list (
+  email varchar(80) NOT NULL default '',
+  PRIMARY KEY  (email)
+) TYPE=MyISAM;
+
+--
+-- Table structure for table 'monolith_capture_status'
+--
+
+CREATE TABLE monolith_capture_status (
+  name varchar(100) NOT NULL default '',
+  owned_by_race int(11) NOT NULL default '0',
+  date_captured datetime default NULL,
+  date_contested datetime default NULL,
+  captured_by_uin int(10) unsigned default NULL
+) TYPE=MyISAM;
+
+--
+-- Table structure for table 'on_ask_responses'
+--
+
+CREATE TABLE on_ask_responses (
+  trigger_id int(10) unsigned NOT NULL auto_increment,
+  item_id int(11) NOT NULL default '0',
+  response_match varchar(255) NOT NULL default '',
+  response_type enum('Say','Echo','Command') NOT NULL default 'Say',
+  response_text longtext NOT NULL,
+  match_order int(10) unsigned NOT NULL default '0',
+  is_visible char(1) NOT NULL default 'Y',
+  PRIMARY KEY  (trigger_id)
+) TYPE=MyISAM;
+
+--
+-- Table structure for table 'rock_certs'
+--
+
+CREATE TABLE rock_certs (
+  name varchar(30) NOT NULL default '',
+  c_type char(1) NOT NULL default '',
+  c_val int(11) NOT NULL default '0'
+) TYPE=MyISAM;
+

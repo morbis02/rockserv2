@@ -1,0 +1,31 @@
+oooo Recipes oooo
+
+What are recipes?
+    Recipes, as opposed to "item templates" (see cre8item), provide a means of letting the end-users "make" items. Okay, so players hardly get the freedom of creation that item template makers do, but I think the reason why is fairly obvious: players can make unbalanced stuff that goes out of control (and so can Admins, and we don't need any more help with *that* :-)).
+
+I'm about to show an example recipe. If you were intimidated by the example in CRE8ITEM, you might want to cover your eyes:
+
+@{$main::recipes->{'frog soup'}} = ('88', '', 20, 'You don\'t have the proper ingredients to prepare frog soup.', 'You prepare a bowl of cold, frog soup.', '%S prepares a tasty bowl of cold, frog soup.', -4,-4,-4, -89);
+
+What do you have to know? If you understood the item stuff, not a whole lot more. It's dissection time!
+
+ -- part a: assigning the effect --
+
+@{$main::recipes->{'frog soup'}} =
+
+This just says that your recipe is for "frog soup". The name should ALWAYS be in completely lower case. Always.
+
+ -- part b: the, uh, other stuff --
+
+Let's look at the other half in english. :)
+
+0: The item[s] that are created, assuming the recipe is successful. This is the item template number(s) of the item(s). If youre just creating item 88, it would read '88'. If you're creating numbers 88 and 99 and 100, it'd look like: '88,99,100'.
+1: Skills required in order to complete it. Note that if you have the skill, no matter what level, you will be able to assemble the item.
+2: The number of turns taken away.
+3: Failure message.
+4: Player's success message.
+5: Nonplayer success message.
+6+: Item requirements. These are the template numbers of items that the player must have in order to create the item. If your number is negative, the item will disappear after being used to create the new item(s). If it's positive, it will stay with the player. If you want to delete more than one copy of an item, like in my frog soup example, just use the number more than once.
+
+I'm getting too lazy to explain this all in full, but hopefully it gives you some idea on how to code it.
+

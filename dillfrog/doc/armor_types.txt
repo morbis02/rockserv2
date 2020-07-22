@@ -1,0 +1,12 @@
+head
+torso
+lower arms
+upper arms
+supertorso
+legs
+face
+neck
+ears
+hands
+waist
+underwear

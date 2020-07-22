@@ -1,0 +1,17 @@
+<HEAD>
+  <TITLE>Rock - Basicer Frames - ~uobj</TITLE>
+</HEAD>
+
+<FRAMESET Rows="*,50" BORDER=1 BORDERCOLOR=MAGENTA FRAMESPACING=0 NORESIZE>
+   <FRAME Src="http://$main::rock_host/r2/msgs/frameloading.html"  Name="gamescreen" NORESIZE>
+   <FRAME Src="http://$main::rock_host\:2331/rock.pl?uobj=~uobj&pw=~pw&fc=40&pr=1&bg=FFFFFF&fix=~fix&v=1" Name="bar1" SCROLLING="NO" NORESIZE>
+</FRAMESET>
+
+<NOFRAMES>
+   <BODY>
+      <P>
+      Sorry.<BR><BR>
+      This document requires a browser capable of rendering frames to view it.<BR><BR>
+   </BODY>
+</NOFRAMES>
+

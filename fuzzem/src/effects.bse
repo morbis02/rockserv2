@@ -1,0 +1,130 @@
+use strict;
+use POSIX qw(ceil floor);
+
+BEGIN { do "const_stats.pm"; }
+
+#####################################################################
+# EFFECT OVERVIEW                                                   #
+#####################################################################
+# Effect Messages:
+#     0 on_effect
+#     1 off_effect
+#     2 during_effect
+# Code-Related
+#     3* duration (decimal or code)
+#     4* constant stat code (code, called at every stats_update)
+#     5 initial stat code  (code, called at effect_add)
+#     6 ending stat code   (code, called when effect goes away)
+#
+# * Required
+#####################################################################
+
+@{$main::effectbase->[0]} = ('Your arms begin to glow a tint of yellow.', 'The yellowness in your arms subsides.', 'Your arms glow a tint of yellow.', 50, sub { $_[0]->{'STAT'}->[15] += 20; } );
+@{$main::effectbase->[1]} = ('Your arms begin to glow a tint of red.', 'The redness in your arms subsides.', 'Your arms glow a tint of red.', 50, sub { $_[0]->{'STAT'}->[17] += 20; } );
+@{$main::effectbase->[2]} = ('You realize that you\'re looking friendlier lately!', 'You lose that friendly ol\' feeling.', 'You appear friendly.', 50, sub { $_[0]->{'STAT'}->[14] += 20; } );
+@{$main::effectbase->[3]} = ('You begin to feel peachy-keen!', 'You ain\'t so peachy anymore.', 'You feel peachy-keen!', 70, sub { $_[0]->{'STAT'}->[14] += int (rand(7)+5); } );
+@{$main::effectbase->[4]} = ('Your arms begin to glow a tint of green.', 'The greenness in your arms subsides.', 'Your arms glow a tint of green.', 30, sub { $_[0]->{'STAT'}->[15] += 30; } );
+@{$main::effectbase->[5]} = ('Your feet feel a bit swifter.', 'The swiftness in your feet disappears.', 'You feel quick-to-the-toes.', 50, sub { $_[0]->{'STAT'}->[16] += 15; } );
+@{$main::effectbase->[6]} = ('You become paralyzed.', 'You are no longer paralyzed.', 'You are paralyzed.', 60, sub { } );
+@{$main::effectbase->[7]} = ('You are given to fly.', 'Your once-flying feet again touch the floor.', 'You are in flight.', 60, sub { } );
+@{$main::effectbase->[8]} = ('You feel stubborn and tired.', 'You feel slightly more awake.', 'You are stubborn and tired.', 120, sub { $_[0]->{'STAT'}->[15] -= 10; $_[0]->{'STAT'}->[16] -= 10; $_[0]->{'STAT'}->[17] += 5; $_[0]->{'STAT'}->[18] += 5; } );
+@{$main::effectbase->[9]} = ('You feel sick to your stomach.', 'Your stomach\'s pain slowly subsides.', 'You feel sick to your stomach.', 120, sub { $_[0]->{'STAT'}->[19] /= 2; $_[0]->{'STAT'}->[20] /= 2; $_[0]->{'STAT'}->[21] /= 2; } );
+@{$main::effectbase->[10]} = ('You feel more massive.', 'Your inertia decreases back to normal.', 'You are massive.', 120, sub { $_[0]->{'MAXH'} += $_[0]->{'LEV'}*3; } );
+@{$main::effectbase->[11]} = ('You feel less massive.', 'Your inertia increases back to normal.', 'You are less massive.', 120, sub { $_[0]->{'MAXH'} -= $_[0]->{'LEV'}*3; if($_[0]->{'MAXH'}<10) { $_[0]->{'MAXH'}=10; } if($_[0]->{'HP'}>$_[0]->{'MAXH'}) { $_[0]->{'HP'}=$_[0]->{'MAXH'}; } } );
+@{$main::effectbase->[12]} = ('Your arms begin to glow a tint of yellow.', 'The yellowness in your arms subsides.', 'Your arms glow a tint of yellow.', 60, sub { $_[0]->{'STAT'}->[15] += 20; } );
+@{$main::effectbase->[13]} = ('You look cute.', 'You\'re not so cute anymore.', 'You appear cute.', 50, sub { $_[0]->{'STAT'}->[13] += 20; } );
+@{$main::effectbase->[14]} = ('Your muscles are torn.', 'You muscles slowly mend themselves.', 'Your muscles are torn.', 80, sub { $_[0]->{'STAT'}->[15] -= 20; $_[0]->{'STAT'}->[16] -= 20; } );
+@{$main::effectbase->[15]} = ('Your bones are cracked.', 'You bones slowly mend themselves.', 'Your bones are cracked.', 80, sub { $_[0]->{'STAT'}->[17] -= 20; $_[0]->{'STAT'}->[18] -= 20; } );
+@{$main::effectbase->[16]} = ('Paranoia consumes you.', 'Your paranoia departs.', 'You are paranoid.', 80, sub { $_[0]->{'STAT'}->[21] /= 3; $_[0]->{'STAT'}->[7] /= 3; $_[0]->{'STAT'}->[19] += 15; } );
+@{$main::effectbase->[17]} = ('You are overcome by a strong poison.', 'Your immune system has compensated for your poison.', 'A poison spreads through your veins.', 100, sub { $_[0]->{'STAT'}->[19] /= 5; $_[0]->{'STAT'}->[20] /= 5; $_[0]->{'STAT'}->[21] /= 5; } );
+@{$main::effectbase->[18]} = ('A light-headedness grows inside your flesh.', 'Oxygen once again flows to your head at a normal rate.', 'You are light-headed.', 100, sub { $_[0]->{'STAT'}->[19] /= 3; $_[0]->{'STAT'}->[16] /= 3; $_[0]->{'STAT'}->[17] /= 5; } );
+@{$main::effectbase->[19]} = ('Your flesh is torn.', 'You flesh slowly mends itself.', 'Your flesh is torn.', 80, sub { $_[0]->{'STAT'}->[7] -= 10; } );
+@{$main::effectbase->[20]} = ('You are overpowered with a huge boost of energy.', 'Your surge of energy departs.', 'A huge boost of energy is absorbed within you.', 60, sub { for (my $n=15; $n<=20; $n++) { $_[0]->{'STAT'}->[$n] *= 1.7; } } );
+@{$main::effectbase->[21]} = ('You are LIVING A ROCK2 BUG.', 'BYE BYE BUGGY BUG BUG.', 'You are WACKY!', 1, sub {  } );
+@{$main::effectbase->[22]} = ('You are blinded.', 'You can see once again.', 'You are blinded!', 60, sub { } );
+@{$main::effectbase->[23]} = ('Your legs begin to rot away!', 'The magical rot has left your legs.', 'Your legs are severely rotted.', 90, sub { $_[0]->{'STAT'}->[16] /= 3; $_[0]->{'STAT'}->[18] /= 3; } );
+@{$main::effectbase->[24]} = ('Your arms begin to rot away!', 'The magical rot leaves your arms.', 'Your arms are severely rotted.', 90, sub { $_[0]->{'STAT'}->[15] /= 3; $_[0]->{'STAT'}->[17] /= 3; } );
+@{$main::effectbase->[25]} = ('You become deaf.', 'You can hear once again.', 'You are deaf.', 90, sub { } );
+@{$main::effectbase->[26]} = ('Your voice becomes mute.', 'You can speak once again.', 'You are mute.', 120, sub {  } );
+@{$main::effectbase->[27]} = ('You are burning up in a fever!', 'Your diseased body returns to normal.', 'A horrible pain stabs through your intestines.', 90, sub { $_[0]->{'STAT'}->[15] *= .9; $_[0]->{'STAT'}->[16] *= .9; $_[0]->{'STAT'}->[17] *= .9; $_[0]->{'STAT'}->[18] *= .9; } );
+@{$main::effectbase->[28]} = ('Your body is stricken with starvation and dehydration!', 'The magical hunger leaves your body.', 'Your body is weak with hunger.', 90, sub { $_[0]->{'STAT'}->[18] *= .75; } );
+@{$main::effectbase->[29]} = ('Your thought patterns decrease in frequency.', 'Your thought patterns return to normal.', 'Your mind is being visited.', 70, sub {  } );
+@{$main::effectbase->[30]} = ('You begin healing at a faster rate.', 'Your rate of healing slows back to normal.', 'You are healing at a faster rate.', 30, sub {  } );
+@{$main::effectbase->[31]} = ('Your flesh hardens.', 'Your flesh softens up again.', 'Your flesh is hardened.', 60*4, sub { $_[0]->{'STAT'}->[19]*=1.1; } );
+@{$main::effectbase->[32]} = ('Your body levitates slightly above the ground, slightly repelling the effects of gravity.', 'Your body repels gravity no longer.', 'You are repelling gravity.', 60, sub { } );
+@{$main::effectbase->[33]} = ('Your planar frequency begins to distort.', 'Your planar frequency is no longer distorted.', 'Your planar frequency is distorted.', 60, sub { } );
+@{$main::effectbase->[34]} = ('A sphere of psionic protection encapsulates you.', 'Your sphere of psionic protection drains away, once again leaving your psyche vulnerable to attack.', 'You are encapsulated by a psionic energy.', 100, sub { $_[0]->{'STAT'}->[21] *= 1.5 } );
+@{$main::effectbase->[35]} = ('You feel your skin harden, as it becomes more bark-like.', 'Your skin returns to its original state.', 'Your skin has a barklike texture.', sub { int(1+$_[0]->fuzz_pct_skill(12, 100)*240) }, sub { my $d = int($_[0]->fuzz_pct_skill(12, 100)*65 + 10); $_[0]->{'STAT'}->[19] += $d; $_[0]->{'STAT'}->[20]+= $d; } );
+@{$main::effectbase->[36]} = ('Your mental capacity is slightly increased.', 'Your mental capacity returns to normal.', 'Your mental capacity is increased.', 300, sub { $_[0]->{'STAT'}->[22] += 5; $_[0]->{'STAT'}->[21] += 5; } );
+
+@{$main::effectbase->[37]} = ('Fire burns through your veins, as your body becomes more orc-like!', 'You feel more like yourself.', 'Your body is more orc-like.', 450, sub { $_[0]->{'STAT'}->[13] *= .05; } );
+#@{$main::effectbase->[38]} = ('You are poisoned!', 'Your poisoned body returns to normal.', 'You feel the poison eating away at you internal organs.', 35, sub {  } );
+@{$main::effectbase->[38]} = ('A swamp leech attaches itself to your body, and begins to drain your blood.', 'The swamp leech drains its fill and lets go.', 'Your body is being drained.', 35, sub {  } );
+@{$main::effectbase->[39]} = ('You become blanketed in a collage of shadows.', 'The shadows lift.', 'You are blanketed in shadows.', 60, sub { } );
+
+@{$main::effectbase->[40]} = ('You feel strength seep into your muscles.', 'Your enhanced strength fades away.', 'Your strength has been enhanced.', 180, sub { $_[0]->{'STAT'}->[17] += 10; $_[0]->{'STAT'}->[18] += 10; });
+@{$main::effectbase->[41]} = ('Your natural defenses have been increased.', 'Your natural defenses return to normal.', 'Your natural defenses have been enhanced.', 180, sub { $_[0]->{'STAT'}->[19] += 10; $_[0]->{'STAT'}->[20] += 10; $_[0]->{'STAT'}->[21] += 10; } );
+@{$main::effectbase->[42]} = ('Hidden knowledge flows into your mind.', 'You forget the hidden knowledge you once possesed.', 'Your grasp of knowledge has been enhanced.', 180, sub { $_[0]->{'STAT'}->[6] += 10; $_[0]->{'STAT'}->[7] += 10; $_[0]->{'STAT'}->[8] += 10;$_[0]->{'STAT'}->[9] += 10; }  );
+@{$main::effectbase->[43]} = ('Your reflexes are enhanced.', 'Your enhanced reflexes return to normal.', 'Your reflexes have been enhanced.', 180, sub { $_[0]->{'STAT'}->[15] += 10; $_[0]->{'STAT'}->[16] += 10; } );
+@{$main::effectbase->[44]} = ('A charge of healing energy rushes through you.', undef, undef, 0, sub { }, sub { $_[0]->{'HP'}+= int ((rand(.2)+.1)*$_[0]->{'MAXH'}); if($_[0]->{'HP'} > $_[0]->{'MAXH'}) { $_[0]->{'HP'}=$_[0]->{'MAXH'}; } } );
+@{$main::effectbase->[45]} = ('A tingling jolt runs through your body.', undef, undef, 0, sub { }, sub { $_[0]->{'MA'}+=int $_[0]->{'MAXM'}/6*rand(3); if($_[0]->{'MA'}>$_[0]->{'MAXM'}) { $_[0]->{'MA'} = $_[0]->{'MAXM'}; } } );
+@{$main::effectbase->[46]} = ('Your muscles become stiff.', 'Your muscles are no longer stiff.', 'Your muscles are stiff.', 5 * 60, sub { $_[0]->{'STAT'}->[15] /= 2; $_[0]->{'STAT'}->[16] /= 2; } );
+@{$main::effectbase->[47]} = ('You are infused with the ferocity of a Vexian king!', 'Your ferocity deminishes.', 'You are infused with the ferocity of a Vexian king!', 30, sub { $_[0]->{'STAT'}->[SLOW] += 25; $_[0]->{'STAT'}->[SUPP] += 25; $_[0]->{'STAT'}->[AUPP] += 25; $_[0]->{'STAT'}->[ALOW] += 25; } );
+@{$main::effectbase->[48]} = ('You form a lifeshield to protect yourself.', 'Your protective lifeshield fades away.', 'A lifeshield is formed around you.', sub { int $_[0]->{'LEV'} }, sub { }, sub { return if ($_[0]->{'TYPE'} != 1); $_[0]->{'BASEH'} = int( $_[0]->{'STAT'}->[MDEF] + $_[0]->{'MAXM'}/2 + $_[0]->{'LEV'}) }, sub { return if ($_[0]->{'TYPE'} != 1); delete $_[0]->{'BASEH'}; } );
+
+@{$main::effectbase->[49]} = ('A slight tingling sensation fills your veins.', undef, undef, 0, sub { }, sub { $_[0]->{'MA'} += int $_[0]->{'MAXM'}*(.1 + rand .05); if($_[0]->{'MA'}>$_[0]->{'MAXM'}) { $_[0]->{'MA'} = $_[0]->{'MAXM'}; } } );
+@{$main::effectbase->[50]} = ('You apply a coat of smelly paste over your body.', ' The smelly paste evaporates from your body.', 'Your body is coated with smelly paste.', 360, sub { });
+@{$main::effectbase->[51]} = ('You are overcome with a feeling of peacefullness and worrilessness.', 'The feeling of peacefullness fades away.', 'You are at peace.', 360, sub { }, sub { });
+@{$main::effectbase->[52]} = ('Terror and panic overcomes you.',  'You regain your courage.', 'You are consumed with paranoia.', 360, sub { }, sub { });
+@{$main::effectbase->[53]} = ('Your arms begin to glow a tint of blue.', 'The blueness in your arms subsides.', 'Your arms glow a tint of blue.', 50, sub { $_[0]->{'STAT'}->[21] += 30; } );
+
+@{$main::effectbase->[54]} = ('You turn into a slice of cinnamon-and-sugar-laden toast.', 'Bye bye, toasty toast.', 'You are super toasty.', 10, sub { for (my $n=6; $n<=22; $n++) { $_[0]->{'STAT'}->[$n] = 1000; } } );
+
+@{$main::effectbase->[55]} = ('You fuse a layer of ice over your skin, chilling your body to near freezing.', 'The layer of ice coating your skin melts away.', 'Your skin is covered with a thin layer of ice.', 2 * 60, sub { $_[0]->{'STAT'}->[KMED] *= 1.2; } );
+@{$main::effectbase->[56]} = ('You fuse a rocky exoskeleton over your skin.', 'The stony exoskeleton sheds off your body.', 'Your body is covered in a rocky exoskeleton.', 2 * 60, sub { $_[0]->{'STAT'}->[DPHY] *= 1.1; $_[0]->{'STAT'}->[AUPP] *= 0.8; $_[0]->{'STAT'}->[ALOW] *= 0.8;} );
+@{$main::effectbase->[57]} = ('You fuse a layer of flowing iron over your skin.', 'The layer of iron sheds off your body.', 'Your body is covered in a flowing layer of iron.', 2 * 60, sub { $_[0]->{'STAT'}->[DPHY] *= 1.2; $_[0]->{'STAT'}->[SUPP] *= 1.1; $_[0]->{'STAT'}->[SLOW] *= 1.1;} );
+@{$main::effectbase->[58]} = ('You fuse a layer of fresh muck over your skin.', 'The muck caked over your body sloughs off.', 'Your body is covered in stinking muck.', 2 * 60, sub { $_[0]->{'STAT'}->[CAPP] *= .1; } );
+@{$main::effectbase->[59]} = ('You fuse a layer of amethyst crystals over your body.', 'The layer of amethyst crystals sheds off your skin.', 'Your body is covered in amethyst crystals.', 2 * 60, sub { $_[0]->{'STAT'}->[DPHY] *= 1.05; } );
+@{$main::effectbase->[60]} = ('You fuse a layer of emerald crystals over your body.', 'The layer of emerald crystals sheds off your skin.', 'Your body is covered in emerald crystals.', 2 * 60, sub { $_[0]->{'STAT'}->[DPHY] *= 1.1; } );
+@{$main::effectbase->[61]} = ('You fuse a layer of sapphire crystals over your body.', 'The layer of sapphire crystals sheds off your skin.', 'Your body is covered in sapphire crystals.', 2 * 60, sub { $_[0]->{'STAT'}->[DPHY] *= 1.15; } );
+@{$main::effectbase->[62]} = ('You fuse a layer of quartz crystals over your body.', 'The layer of quartz crystals sheds off your skin.', 'Your body is covered in quartz crystals.', 2 * 60, sub { $_[0]->{'STAT'}->[DPHY] *= 1.2; } );
+@{$main::effectbase->[63]} = ('You fuse a layer of diamond crystals over your body.', 'The layer of diamond crystals sheds off your skin.', 'Your body is covered in diamond crystals.', 2 * 60, sub { $_[0]->{'STAT'}->[DPHY] *= 1.25; } );
+
+@{$main::effectbase->[64]} = ('You apply a coat of medical salve to your wounds.', undef, undef, 0, sub { }, sub { $_[0]->{'HP'}+= int(0.5 * $_[0]->{'MAXH'}); if($_[0]->{'HP'} > $_[0]->{'MAXH'}) { $_[0]->{'HP'}=$_[0]->{'MAXH'}; } } );
+
+@{$main::effectbase->[65]} = (undef, 'You feel clear-headed once again.', 'You feel a little tipsy.', 3 * 60, sub { $_[0]->{'DRUNK_LEV'} = int (ceil( ($_[0]->{'FX'}->{65} - time) / $main::effectbase->[65]->[3]));}, sub{}, sub{delete $_[0]->{'DRUNK_LEV'};});
+@{$main::effectbase->[66]} = ('Stinking formeldahyde covers your body.', 'The formeldahyde evaporates off you, and its odor fades.', 'You reek of formeldahyde.', 2 * 60, sub { $_[0]->{'STAT'}->[CAPP] *= 0.5; $_[0]->{'STAT'}->[KSOC] *= 0.1;} );
+@{$main::effectbase->[67]} = ('You are mirrored by a spectral mirage.', 'Your mirage detunes from the planar realm.', 'You are accompanied by a sentient mirage.', 3 * 60, sub {} );
+@{$main::effectbase->[68]} = ('Time flies forward for a moment, aging you a dozen years.', 'Time returns back to its normal state, and you regain your youth and vigor.', 'You feel frail and decrepit.', 2 * 60, sub {$_[0]->{'STAT'}->[DPHY] *= 0.75; $_[0]->{'STAT'}->[AUPP] *= 0.75; $_[0]->{'STAT'}->[ALOW] *= 0.75;  $_[0]->{'STAT'}->[SUPP] *= 0.75; $_[0]->{'STAT'}->[SLOW] *= 0.75;} );
+
+# effect 69, 23, 48
+# TODO: remove these or somehow disable for non-chaos (iridescent):
+@{$main::effectbase->[69]} = ('You turn into a slice of texas toast.', 'Bye bye, texy toasty toast.', 'You are super texy-toasty.', 60, sub { for (my $n=6; $n<=22; $n++) { $_[0]->{'STAT'}->[$n] = 100_000; } } );
+@{$main::effectbase->[70]} = ('You turn into a slice of cinnamon-and-sugar-laden toast.', 'Bye bye, toasty toast.', 'You are super toasty.', 60, sub { for (my $n=6; $n<=22; $n++) { $_[0]->{'STAT'}->[$n] = 1000; } } );
+@{$main::effectbase->[71]} = ('You are poisoned!', 'Your poisoned body returns to normal.', 'You feel the poison eating away at you internal organs.', 35, sub {  } );
+@{$main::effectbase->[72]} = ('Your arms begin to glow a bright tint of green.', 'The greenness in your arms subsides.', 'Your arms glow a tint of green.', 60, sub { $_[0]->{'STAT'}->[15] += 60; } );
+@{$main::effectbase->[73]} = ('You fuse a glassy layer over your body.', 'The glass shatters away.', 'Your body reflects a bright shine.', 1 * 60, sub { $_[0]->{'STAT'}->[KCOM] *= 1.2; $_[0]->{'STAT'}->[AUPP] *= 0.8; $_[0]->{'STAT'}->[DMEN] *= 1.4; $_[0]->{'STAT'}->[ALOW] *= 0.8;} );
+@{$main::effectbase->[74]} = ('You feel decidedly more happy go lucky.', 'Your luck fades away.', 'Your body feels looks happy go lucky.', 2 * 60, sub { $_[0]->{'MAXH'} += 200; { $_[0]->{'STAT'}->[9] -= 10}; { $_[0]->{'STAT'}->[16] -= 10;}} );
+@{$main::effectbase->[75]} = ('You feel a massive jolt travel through your vital organs.', 'You feel your body return to normal.', 'Your body is a mass of swirling electric.', 3 * 60,sub {$_[0]->{'MAXH'} -= 300; $_[0]->{'STAT'}->[MDEF] *= 2; $_[0]->{'STAT'}->[21] -= 100;$_[0]->{'MAXM'} = ($_[0]->{'MAXM'} * 6); $_[0]->{'MA'} = $_[0]->{'MAXM'};$_[0]->{'STAT'}->[11] -= 20;});
+@{$main::effectbase->[76]} = ('You fuse dragon\'s scale to your body.', 'The layer of dragon\'s scales sheds off your skin.', 'Your body is enhanced with dragon scales.', 2.2 * 60, sub { $_[0]->{'STAT'}->[DMEN] *= 2.2; } );
+@{$main::effectbase->[77]} = ('You fuse a layer of topaz crystals over your body.', 'The layer of topaz crystals sheds off your skin.', 'Your body is covered in topaz crystals.', 2.2 * 60, sub { $_[0]->{'STAT'}->[MDEF] *= 1.8; } );
+@{$main::effectbase->[78]} = ('You fuse shark tooth to your body.', 'The shark tooth sheds off your skin.', 'Your body is covered in a layer of shark tooth.', 2.2 * 60, sub { $_[0]->{'STAT'}->[SLOW] += 50; } );
+@{$main::effectbase->[79]} = ('You fuse intestines to your body.', 'The intestinal protection sheds off your skin.', 'Your body is covered in a layer of intestinal protection.', 2.2 * 60, sub { $_[0]->{'STAT'}->[DPHY] += 35; } );
+@{$main::effectbase->[80]} = ('You feel rejuvinated.', 'Your rejuvination fades away.', 'You are feeling rejuvinated.', 60*.5, sub { $_[0]->{'VIGOR'} = 0.8; } );
+@{$main::effectbase->[81]} = ('You feel greatly rejuvinated.', 'Your greater rejuvination fades away.', 'You are feeling greatly rejuvinated.', 60*.5, sub { $_[0]->{'VIGOR'} = 1.2; } );
+@{$main::effectbase->[82]} = ('Your skin becomes hard like stone.', 'Your flesh softens up again.', 'You are protected by stone skin.', 60*5.2, sub { $_[0]->{'STAT'}->[19]*=2; } );
+@{$main::effectbase->[83]} = ('Your magic essence is drained.', 'Your magic essence is no longer drained.', 'You are magically impaired.', 1.5 * 60, sub {$_[0]->{'MA'} = 0});
+@{$main::effectbase->[84]} = ('You fuse electricity to your mind.', 'The electric loses its grip on your mind.', 'Your mind is flowing with electricty.',  15, sub { $_[0]->{'STAT'}->[MMEN] *= 1.29; $_[0]->{'STAT'}->[DMEN] *= 1.5; } );
+@{$main::effectbase->[85]} = (undef, undef, undef, 0, sub { }, sub { $_[0]->{'HP'}-= int(0.15 * $_[0]->{'MAXH'});});
+@{$main::effectbase->[86]} = ('Your eyes begin to tingle slightly.', 'Your blindness has been cured.', 'Your eyes feel peculiar.',5, sub {$_[0]->effect_del(22)});             
+@{$main::effectbase->[87]} = ('Your ears begin to throb.', 'You are no longer deaf.', 'Your ears are throbbing.',5, sub {$_[0]->effect_del(25)}); 
+@{$main::effectbase->[88]} = ('Your throat begins to contract and release wildly.', 'You feel as if you can speak again.', 'Your vocal chords are being repaired.',5, sub {$_[0]->effect_del(26)}); 
+@{$main::effectbase->[89]} = ('You instantly feel less weak with hunger.', 'You are no longer hungry.', 'Your stomach acids are churning away madly.',5, sub {$_[0]->effect_del(28)}); 
+@{$main::effectbase->[90]} = ('You are beginning to feel better.', 'You are no longer famished.', 'Your stomach acids are churning away madly.',5, sub {$_[0]->effect_del(27)}); 
+@{$main::effectbase->[91]} = ('You are invisible.', 'You are no longer invisible.', 'You are blended into your surroundings.',30, sub {$_[0]->{'INVIS'}}); 
+@{$main::effectbase->[92]} = ('You are invisible.', 'You are no longer invisible.', 'You are blended into your surroundings.',30, sub {$_[0]->{'WEBS'}++}); 
+@{$main::effectbase->[93]} = ('You are enraged.', 'You are no longer enraged.', 'Your blood boils and you begin your rampage.',90, sub { $_[0]->{'STAT'}->[SUPP] *= 3; $_[0]->{'STAT'}->[AUPP] *= 3; $_[0]->{'STAT'}->[DENE] *= .6; $_[0]->{'STAT'}->[DMEN] *= .6;} );
+;
+
+
+1;

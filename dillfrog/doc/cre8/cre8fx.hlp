@@ -1,0 +1,45 @@
+oooo Effects oooo
+
+What are effects?
+    Effects are timed boosts/decreases from stats. Stats that can be affected include max HP/Mana, and the substats. If someone gets effect 1, then effect 1 again, the effect will last longer than just one "effect 1" (so both effects *will* count, just not at the same time). That was probably poorly-worded, but I hope you understand what I'm getting at.
+
+I'm about to show an example effect. If you were intimidated by the example in CRE8ITEM, you might want to cover your eyes:
+
+@{$main::effectbase->[0]} = ('Your arms begin to glow a tint of yellow.', 'The yellowness in your arms subsides.', 'Your arms glow a tint of yellow.', 60, sub { $_[0]->{'STAT'}->[15] += 20; } );
+
+What do you have to know? If you understood the item stuff, not a whole lot more. It's dissection time!
+
+ -- part a: assigning the effect --
+
+@{$main::effectbase->[0]} =
+
+This just says that your effect is stored as effect #0 (note the [0]). If you wanted it to be effect #9, you'd change the 0 to a 9, and so forth.
+
+ -- part b: the, uh, other stuff --
+
+Let's look at the other half in english. :)
+
+0: What the user sees when the effect happens to him/her.
+1: What the user sees when the effect goes away.
+2: What the user sees when looking at their stats (and they have the effect).
+3: The amount of seconds that the effect lasts. The game is not too strict on this, however. It checks it at its' leisure and sees if the player's effect time is up. (It doesn't check at exactly 10 seconds or whatever. The game will seem slower at this if it's handling a lot of player requests. Don't give anyone ideas, though. I'll keel'em! :))
+4: The subroutine code that alters the stats.
+
+I'm getting too lazy to explain this all in full, but hopefully it gives you some idea on how to code it.
+
+A quick explanation on the subroutine code:
+
+If you want to alter a stat, it's in the form you see:
+
+$_[0]->{'STAT'}->[15] += 20;
+
+That changes statnum 15 to add 20 to it. You could also do something like:
+
+$_[0]->{'STAT'}->[15] -= 20;
+
+Which takes 20 away. You could do the same via:
+
+$_[0]->{'STAT'}->[15] += -20;
+
+(To add negative 20), but I'd recommend the first version instead. Less confusing.
+

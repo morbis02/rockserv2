@@ -1,0 +1,4 @@
+$cap .= "{16}Which character should be logged off? (eg: Swordly)\n";$sline++;
+if ($main::uidmap{lc($cmd)}) { $temp->{'UID'}=lc($cmd); $sline++; } elsif(lc($cmd) eq 'x') { $sname='LOGIN', $sline=1; } else {  $cap .= "{12}That player does not exist. (type x to exit login)\n"; $sline--; } $continue=1;
+$cap .= "{16}What's your character's logoff password?\n";$sline++;
+if(lc($cmd) eq 'x') { $sname='LOGIN', $sline=1; } else {  $self->telnet_kick($temp->{'UID'}, $cmd);  $sname='LOGIN', $sline=0; $continue=1; } 

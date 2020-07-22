@@ -1,0 +1,508 @@
+%recurshashes = (
+)
+$set_cryl_on_no_cryl_to = 5
+@lcom = (
+)
+$min_pw_change_time = 1313088145
+$news_man = news_man=HASH(0x40f3550)
+$objbase = ARRAY(0x4b524a0)
+$cmdbase_ali = HASH(0x5e2cb20)
+@wingmap = (
+)
+%flatten_mayberef = (
+)
+%numtocolor = (
+)
+$gmTimeMod = '-5'
+$exitmap = HASH(0x46f7510)
+%flatten_dont = (
+)
+%prompt_token_map = (
+)
+$updated_item_rec = "<ÕE¯Í}ÿ\cGO\cDø†ßÿÿÿÿÿ\c_H'\c@\c@\c@\cF÷ßÿ÷Öÿÿÿòÿk:‡÷ûÿþÿÿÿ÷Å¿JäÿÛûÿÿÿÿ\cGÿÿ\c?ûÿúÿïc\cMáÿï¿\cGÂïßþÿ?ÿÿÿÿÿ7\cPóÿOüÿÿÿÿÿßÿŸÿûÿ÷ÏþÿÿÿÿÿÿþÿyÿÿÿÏÿÿÿÿÿ\cGïÿ\cOýÿÿÿþ_~ÿ½þÿÿý‘ÿoþ\cGÀßÿÿÿÿÿÿÿïÿÿÊÿüÿÿÿ\cG"
+@classexit = (
+)
+@looktoggle = (
+)
+%dirwall = (
+)
+%monolithtoname = (
+)
+@compli_coffee = (
+)
+$state = HASH(0x5e332a0)
+@BeginCons = (
+)
+@newbiemap = (
+)
+%rock_stats = (
+)
+%ENV = (
+)
+$minz = '-4'
+%entropy = (
+)
+$owner_name = 'rockreloaded.com'
+%colortonum = (
+)
+$^W = 0
+$one_player_per_ip = 0
+%dirernmap = (
+)
+@pkmap = (
+)
+@timesmap = (
+)
+%npc_guard_map = (
+)
+$arena_can_life = 1
+$garbage_rooms = HASH(0x6401e70)
+$motd = '{13}***************************
+{11}NEW COMMANDS:
+ {12}upcomming - {11}List of Times and Rooms when bosses will spawn.
+ {12}silence spawns - {11}silences when bosses spawn.
+{13}***************************
+'
+$db_name = 'rockrelo_smp1'
+%helpmap = (
+)
+$amap = HASH(0x5e33680)
+%FUSE_EFFECT_LOOKUP = (
+)
+$idlestart = '-25'
+$recipes = HASH(0x25208f0)
+$delkey = "\c?"
+@race_mult = (
+)
+$can_we_probe = 'In order to maintain site security and enforce site rules we have found
+it necessary to utilize some special techniques that reach across the
+network and probe your computer. Some of the functions we make available,
+Rock for example, thus require you agree to freely allow us to do these
+activities.
+
+By agreeing to this you are giving us consent to use various standard
+techniques to gain more information about people connecting to our site.
+These techniques may include, but are not limited to, port-scanning and
+probing your machine from across the network.
+
+Privacy is important to us and thus, any and all information gathered
+through these methods will only be used for the purpose of site security and
+rule enforcement. The information will not be seen by, or shared with,
+anyone outside of senior zilla.net staff.
+
+Do you agree to the above requirements? (NOTE: disagreeing, typing NO, you
+will no longer be permitted to access Rock)
+
+YES/NO> 
+'
+@caarpmap = (
+)
+$: = ' 
+-'
+%obj_recd = (
+)
+@webadminmap = (
+)
+%diroppmap = (
+)
+@racestats = (
+)
+$portals = HASH(0x6771900)
+$process_num = 39052
+%map_interp_dont = (
+)
+%pdescs_req = (
+)
+@racegifts = (
+)
+%telnetbandwidth = (
+)
+@SillySuffix = (
+)
+$bluebar = '{14}-{4}============================================================{14}-
+'
+$activeusers = HASH(0x4cb7320)
+@webstatuslist = (
+)
+$eventman = event_queue=HASH(0x3cee2a0)
+$. = 0
+%dircondensemap = (
+)
+@allyxmap = (
+)
+@wingmap2 = (
+)
+@insane_talk = (
+)
+$swinginvmod = 1.1
+@maintenance_todo = (
+)
+%gameobjs = (
+)
+$^ = 'D_TOP'
+%terrain_toname = (
+)
+$world_of_khaki = 0
+%DRUNK_LETTER_LOOKUP = (
+)
+$^WARNING_BITS = "\c@\c@\c@\c@\c@\c@\c@\c@\c@\c@\c@\c@"
+$arena_time_limit = 8
+@outq = (
+)
+%terrain_tonum = (
+)
+@blankmap = (
+)
+$arena_invite_only = ''
+$maxz = 8
+@adminmap = (
+)
+$rock_admin_email = 'support@rockreloaded.com'
+@qkillonsend = (
+)
+@afkpromptmap = (
+)
+%statnum_toname = (
+)
+$base_web_dir = '/home1/rockrelo/public_html/r2'
+%colorhtmlmap = (
+)
+$pvpsperday = 3
+$genvotes_handle = DB_File=SCALAR(0x3d44420)
+$votage_cap = '{13}Last Votage Count was as follows:
+{3}          noone: {17}  2. {1}    schmendrick: {17}  2. {3}          mytal: {17}  2. 
+{6}      chodelice: {17}  2. {2}   drwhoopwhoop: {17}  1. 
+'
+$" = ' '
+@SylEnding = (
+)
+%obj_unique = (
+)
+%typemap = (
+)
+$desc = ARRAY(0x3cfc650)
+$ver_pref = 0.01
+$effectbase = ARRAY(0x3e09410)
+%spellbase = (
+)
+$maxx = 37
+@MidCons = (
+)
+$telnet_only = 0
+@tellType = (
+)
+@onoff = (
+)
+%cmd_tick = (
+)
+$arena_planning_time = 30
+$% = 0
+@dream_sequence = (
+)
+@eclass = (
+)
+$< = 1901
+%elsemap = (
+)
+$DB_HASH = DB_File::HASHINFO=HASH(0x29b0de0)
+$charspersend = 1000
+@racefistlist = (
+)
+FileHandle(stderr) => fileno(2)
+%SIG = (
+)
+$ver_map = 0.39
+$ver_skill = 0.16
+$pop_mail_server = 'localhost'
+$allow_new_signups = 1
+$db_username = 'rockrelo_rock'
+%racetonum = (
+)
+$idle = 1317057614
+@raceskills = (
+)
+@MidVow = (
+)
+@desertmap = (
+)
+@parch_codes = (
+)
+%fill = (
+)
+FileHandle(STDERR) => fileno(2)
+%parr = (
+)
+$base_code_dir = '/home1/rockrelo/rs2/src'
+@randSwearWord = (
+)
+%spawn_db_lists = (
+)
+@webafkmap = (
+)
+@camefrommap = (
+)
+%obj_limits = (
+)
+$similar_players_range = 7
+$^T = 1316976143
+@+ = (
+)
+$armageddon_started_by_race = 0
+$> = 1901
+$DB_RECNO = DB_File::RECNOINFO=HASH(0x29702f0)
+$daminvmod = 4
+@weblevelcompare = (
+)
+%cmd_time = (
+)
+$cmdbase_sing = HASH(0x3ed20e0)
+$listener_sel = IO::Select=ARRAY(0x637a460)
+$ver_class = 0.16
+%course_log = (
+)
+$noHangupDuringPvp = 1
+%gendermap = (
+)
+$dp_high = '{4}---------------------- {14}Top Dedication Points {4}====================-
+{6} 1{16})          Chodelice {7}({17} 108.8{7}) {4}| {6} 2{16})              Mytal {7}({17}  74.8{7})
+{6} 3{16})              Noone {7}({17}  52.2{7}) {4}| {6} 4{16})        Schmendrick {7}({17}  51.3{7})
+{6} 5{16})       DrWhoopWhoop {7}({17}  44.5{7}) {4}| {6} 6{16})               Swag {7}({17}  31.3{7})
+{6} 7{16})            Agent86 {7}({17}  27.8{7}) {4}| {6} 8{16})              Thyrr {7}({17}  24.7{7})
+{6} 9{16})           Zecknaal {7}({17}  24.2{7}) {4}| {6}10{16})           Paradigm {7}({17}  22.6{7})
+{6}11{16})     Chodelicesucks {7}({17}  18.1{7}) {4}| {6}12{16})            Degonet {7}({17}  16.8{7})
+{6}13{16})           Boogyman {7}({17}  14.6{7}) {4}| {6}14{16})      WolfOfShadows {7}({17}  14.1{7})
+{6}15{16})              Cyrex {7}({17}  14.0{7}) {4}| {6}16{16})              Trite {7}({17}  13.8{7})
+{6}17{16})              Bagel {7}({17}  12.5{7}) {4}| {6}18{16})         Aphrodieti {7}({17}  10.3{7})
+{6}19{16})           Raeltank {7}({17}  10.1{7}) {4}| {6}20{16})              Vrean {7}({17}   9.9{7})
+{4}---------------------- {14}                      {4}====================-
+'
+$msg_friend = rock_message=HASH(0x5eedd80)
+$ver_cryl = 0.85
+@inject_items = (
+)
+@WordCombos = (
+)
+$sock_sel = IO::Select=ARRAY(0x5f0a000)
+$arena_start_time = 3
+$sleepint = 0.2
+$a = 'vdump'
+@wingmap1 = (
+)
+$lightning_cryl_multiplier = 3
+$0 = 'rockserv2.pl'
+$] = 5.008008
+$rock_host = 'rockreloaded.com'
+%tellpriority = (
+)
+%quest_receives = (
+)
+$map = ARRAY(0x3ceec10)
+$^A = ''
+$diroffset = HASH(0x40e5d60)
+@asteriskmap = (
+)
+%general_votes = (
+)
+$^O = 'linux'
+%dirfrommap = (
+)
+%effectors = (
+)
+$set_cryl_on_no_cryl_pct = 0.4
+%dirlongmap = (
+)
+$already_shut_down_game = 0
+@inq = (
+)
+$newbie_for_days = 7
+$& = '::'
+$iackey = 'ÿ'
+%channames = (
+)
+$rock_talker = rock_talker=HASH(0x40f3590)
+$rock_host_str = 'rockreloaded.com'
+$^H = 256
+@levelcompare = (
+)
+$sockplyrs = HASH(0x6339110)
+$rock_support = 'support@rockreloaded.com'
+$rock_serv_email = 'support@rockreloaded.com'
+$/ = '
+'
+@raceExpPHYMap = (
+)
+$minx = '-23'
+$goodrepborder = 40
+@bodyparts = (
+)
+$cmdbase_obj = HASH(0x3ff7100)
+FileHandle(D) => fileno(34)
+@months = (
+)
+$$ = 21539
+$maxy = 28
+$realm = HASH(0x3cfc6e0)
+$cantbind = 0
+$high_uonline = 11
+@webdevelopermap = (
+)
+@AGGRESS_GENERIC_ERROR = (
+)
+%monoliths = (
+)
+$mail_program = '/usr/sbin/sendmail -t'
+$cmdbase_mult = HASH(0x3fdf080)
+$miny = '-49'
+$dual_friend = rock_dualchar=ARRAY(0x5e333a0)
+$ip_resolutions = 0
+%preflist = (
+)
+$db = ARRAY(0x4bc5160)
+$ver_time = 0.06
+FileHandle(stdout) => fileno(1)
+%roomaliases = (
+)
+@goodrepmap = (
+)
+$maintainstart = '-27'
+$pvp_restrict = 1
+%htmlmap = (
+)
+$maintained = '-27'
+@allyfriend = (
+)
+@developermap = (
+)
+@webnewbiemap = (
+)
+%r2_frames = (
+)
+@dirlist = (
+)
+$maxweb = 5
+$lightning_course_point_multiplier = 2
+$ver_mili = 0.16
+$lives_per_day = 0
+$maxm = 37
+$lightning_exp_multiplier = 1.5
+@grapemap = (
+)
+$swear_filter = 1
+@allyomap = (
+)
+$set_cryl_on_no_cryl_from = 5
+$- = 0
+@- = (
+)
+$max_course_wait_time = 60
+$kill_allowed = 1
+$^X = '/ramdisk/bin/perl'
+@skillinfo = (
+)
+@gestures = (
+)
+$= = 60
+$DB_BTREE = DB_File::BTREEINFO=HASH(0x293e850)
+FileHandle(stdin) => fileno(0)
+@INC = (
+)
+%INC = (
+)
+$maint_friend = rock_maint=HASH(0x5e33400)
+$badrepborder = '-25'
+@statuslist = (
+)
+$ver_inv = 1.21
+@daily_win_items = (
+)
+$totalcommands = 38085
+$adminbase_sing = HASH(0x3fdd700)
+$uidmap = HASH(0x242a000)
+%uidmap = (
+)
+$~ = 'D'
+$max_turns_storable = 15000
+$_ = 'vdump'
+@_ = (
+)
+@days = (
+)
+$base_web_url = 'http://www.rockreloaded.com/r2'
+$ver_dp = 0.01
+$starttime = 1316976145
+%ansimap = (
+)
+$make_alts_wait = 0
+$telnet_welcome = '  {17}R{7}ock: {17}C{7}rashed {17}P{7}lane
+  
+      {12}[{17}E{12}]{2}nter Realm  {2}e{12}[{17}X{12}]{2}it Game
+  {2}e{12}[{17}J{12}]{2}ect Character  {12}[{17}C{12}]{2}olor Toggle
+  
+  Got questions? E-mail support@rockreloaded.com.
+  
+  {2}Game provided as-is. Play at your own risk.
+'
+FileHandle(STDOUT) => fileno(1)
+$safe_cmds = 10000
+$activeuids = HASH(0x3ceeb40)
+$scry_ball_objid = 3748
+$ver_stat = 1.41
+%rock_mdim = (
+)
+$swingrand = 40
+$^L = "\cL"
+@afkmap = (
+)
+$objs = HASH(0x3ceec60)
+%iop = (
+)
+$ver_quest = 0.06
+$! = 'Inappropriate ioctl for device'
+%! = (
+)
+%activemap = (
+)
+@badrepmap = (
+)
+%events = (
+)
+$rockstats_handle = DB_File=SCALAR(0x3d443c0)
+@FullSyllab = (
+)
+$? = 0
+@terrain_colors = (
+)
+$@ = ''
+%monolithstoobjid = (
+)
+$highobj = 23490
+@generalmap = (
+)
+$adminbase_mult = HASH(0x3fdf940)
+$| = 0
+@EndCons = (
+)
+@camefrommapb = (
+)
+$msgids = 375
+$admin_login_only = ''
+%rparr = (
+)
+FileHandle(STDIN) => fileno(0)
+%mapname_resolutions = (
+)
+%telnetmsgs = (
+)
+%courses = (
+)
+@races = (
+)
+%snd_to_cmd = (
+)
+$db_password = '1qaz#EDC@WSX'
+$rock_serv = 'support@rockreloaded.com'
+$help = HASH(0x3cee020)
+@allysmap = (
+)
+%staticid_to_room = (
+)

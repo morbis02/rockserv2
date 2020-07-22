@@ -1,0 +1,62 @@
+Racial Trackscan|"rtrails"
+Social Trackscan|"trails"
+Decapitation|"decapitate <victim>"
+Flesh Melding|"meld <bodypart>"
+Closing Wounds|"close wounds"
+Speed Healing|"speed heal"
+Flesh Hardening|"harden flesh"
+Blinding|"blind <victim>"
+Mind Visiting|"mindvisit <victim>"
+Flight|"fly"
+Web Spinning|"spin web"
+Roaring|"roar"
+Teleportation|"teleport <user of same race>"
+Salping|"salp <victim>"
+Gravity Repulsion|"repulse gravity"
+Scurrying|"scurry <dir>"
+Item Appraisal|"appraise <item>"
+Item Management (102)|(implicit maxinv+2)
+Item Management (142)|(implicit secured+2)
+Flesh Knitting|"knit flesh"
+Item Management (202)|(implicit maxinv+5)
+Grapegrow|"grapegrow" (need seeds)
+Barkish Integument|"bark integument" (need bark)
+Blossom of Allurement|"allure <dir>" (need blossom)
+Sprinting|"sprint <dir> [dir] [dir] [dir] [dir]"
+Salp Catalyst|(implicit +salp accumulation)
+Dancing|"dance"
+Advanced Web Weaving|(implicit +web staying power)
+Web Enforcement|(implicit stickier webs)
+Tactical Web Placement|(implicit +chance invisible webs)
+Nomouth|"nomouth <victim>"
+Obfuscation|"obfuscate" (+shadow)
+Greater Obfuscation|"obfuscate" (+hidden)
+Thoughtstab|"cast tstab <victim>"
+Mindblast|"cast mblast <victim>"
+Brainthrash|"cast bthrash <victim>"
+Swimming|(implicit swimming ability)
+Animate Flesh|"anim"
+Quarantine|"cast quar <friend>"
+Wizard's Eye|"wizeye <victim>"
+Farsee|"farsee <dir>"
+Astral Spy|"aspy <victim>"
+Detect Forces|"detect forces"
+Scry Ball|"scry <command>"
+Lifeshield|"lshield"
+Manadart|"cast mdart <victim>"
+Manabolt|"cast mbolt <victim>"
+Manabeam|"cast mbeam <victim>"
+Tripwire Notification|(implicit)
+Tripwire Disarmament|"disarm <object>"
+Sulph Breath|cast SULPH-DBREATH, or cast SULPH-DBREATH2 <target>. NPC Spell/Skill
+Faith Heal|"cast fheal <friend>"
+Miracle|
+Lesser Restoration|"cast lrest <friend>"
+Greater Restoration|"cast grest <friend>"
+Manalend|"cast mlend <recipient>"
+Mana Boost|"mana boost"
+Lifeaura|
+Fuse|"fuse <raw material>"
+Farshare|"give <item> to <same-race player in other room>"
+Allwell|"allwell"
+Spectral Mirage|"summon mirage"

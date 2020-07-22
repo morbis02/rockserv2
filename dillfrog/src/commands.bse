@@ -1,0 +1,1122 @@
+use strict;
+use Dillfrog;
+use Dillfrog::Mail;
+
+#$main::cmdbase_mult = undef;
+#$main::cmdbase_sing = undef;
+#%main::cmdbase_mult = ();
+#%main::cmdbase_sing = ();
+#$main::adminbase_mult = undef;
+#$main::adminbase_sing = undef;
+#%main::adminbase_mult = ();
+#%main::adminbase_sing = ();
+
+# set up multiple-arg commands.
+# NOTE: format for calling is &$cmdbase_mult->{'command'}(obj, secondarg) (eg: "say hi": first arg: say. second arg: hi);
+
+
+#$main::cmdbase_mult->{'email'} = sub { $_[0]->log_append("{7}This command has been deprecated due to the new account system. Visit http://www.dillfrog.com/account/ to change your account info. Sorry, but non-premium members cannot change their email address.\n"); };
+
+#$main::cmdbase_mult->{'email'} =
+#sub {
+#    my ($self, $email) = @_;
+#     
+#    $email =~ s/^\s+//g;
+#    
+#    if($email =~ /^(.+)\@(.+)\.(.+)$/) {
+#        $self->{'EMAIL'} = $email;
+#        $self->log_append("{13}Your email address has been changed to $email. Please make a note of it.\n");
+#        $self->obj_dump;
+#    } else {
+#        $self->log_append("{3}<<  $email doesn't look like an email address to me!  >>\n");
+#    }
+#};
+        #&main::mail_send($self->{'EMAIL'}, "Rock: [$self->{'NAME'} EMAIL Change]", "Sorry to bother you,\n\nThis message is just a reminder that you have\nchanged your email address to \"$email\". Your old email address,\n\"$self->{'EMAIL'}\", is no longer configured for this character.\n\nYou were at the IP of $self->{'IP'} when the\naddress-change occurred.\n\n- Rock Support\n(This was an automated message).\n");
+
+$main::cmdbase_mult->{'auctionitem'} = sub { $_[0]->item_auction($_[1]); };
+$main::cmdbase_mult->{'compare'} = sub {
+    if ($_[1] =~ /^(.+)\s+to\s+(.+)$/) {
+        $_[0]->compare_items($1, $2);
+    } else {
+        $_[0]->log_error("Syntax: compare <item> to <item>");
+    }
+};
+$main::cmdbase_mult->{'draw'} = sub { $_[0]->unstore_turns($_[1]); };
+$main::cmdbase_sing->{'draw'} = sub { $_[0]->list_stored_turns(); };
+$main::cmdbase_sing->{'salp'} = sub {
+    if ($_[0]->{'RACE'} != 4) {
+        $_[0]->log_error("You don't even know how to salp. You salper wanna-be.");
+    } else {
+        $_[0]->log_error("Syntax: salp <victim name>");
+        if ($_[0]->{'SALP'} > 0) {
+            $_[0]->log_append("{3}Your stomach has a salp coefficient of {13}" .sprintf("%.1f", $_[0]->{'SALP'})."{3}.\n"); 
+        } else {
+            $_[0]->log_hint("You don't have any salp in your stomach! Try eating some frogs and grapes first.");
+        }
+    }
+};
+$main::cmdbase_mult->{'canattack'} = sub { 
+    if (my $victim = $_[0]->uid_resolve($_[1])) {
+	    unless ($_[0]->log_cant_aggress_against($victim, 1)) {
+		    $_[0]->log_append("{2}You should be able to attack them right now.\n");
+		}
+    }
+};
+
+$main::cmdbase_mult->{'chaos'} = sub {
+    $_[0]->do_chaos($_[1]);
+};
+
+$main::cmdbase_mult->{'groupsay'} =
+sub {
+    my ($self, $cmd_args) = @_;
+    
+    unless($self->is_in_a_group()) {
+        $self->log_error("You are not in a group.") if !$self->is_in_a_group();
+        return;
+    }
+    $cmd_args = &main::text_filter_game($cmd_args, $self);
+ 
+    # send text to room
+    my $cmsg = censored_message->new_prefiltered(sprintf("{12}%s {2}tells the group, {12}\"{17}%s\{12}\"\n", $self->get_name(), $cmd_args), $self);
+    $self->group_tell($cmsg);
+    $self->log_append(sprintf("{2}%s tell the group, {12}\"{17}%s{12}\"\n", 'You', $cmd_args));
+};
+
+$main::cmdbase_mult->{'refs'} = 
+  sub { 
+    if(!$_[0]->{'@BUGFRIEND'} && !$_[0]->{'ADMIN'}) { $_[0]->log_append("{1}Nah..\n"); return; }
+    my $cap = &main::ref_hier($_[0],0,$_[1]);
+    if ($cap) { $_[0]->log_append($cap); }
+    else { $_[0]->log_append("Odd - You have no refs.\n"); }
+  };
+
+$main::cmdbase_mult->{'censor'} = sub {
+#    $_[0]->log_error("This command no longer toggles censorship.");
+#    $_[0]->log_hint("Visit http://www.dillfrog.com/account/auth/edit_details.asp"); 
+    
+    if (!$_[0]->{'UIN'}) {
+        $_[0]->log_error("Sorry, you can't do that. You don't have a UIN for some reason. You freak! Monster!");
+    } elsif ($_[1] =~ /^(?:on|off)?$/i) {
+        $_[0]->pref_toggle('censor filter', 0, $_[1]);
+        $rockobj::auth_man->setCensorByUIN($_[0]->{'UIN'}, $_[0]->pref_get('censor filter') ? 1 : 0);
+    } else {
+        $_[0]->log_error("Syntax: censor [on|off]");
+    }
+};
+
+$main::cmdbase_sing->{'oldhives'} = sub {$_[0]->pref_toggle('old-school hives'); };
+$main::cmdbase_sing->{'oldhive'} = sub{$_[0]->pref_toggle('old-school hives');};
+$main::cmdbase_sing->{'can reset'} = sub { $_[0]->pref_toggle('can reset', 0, $_[1]); };
+$main::cmdbase_sing->{'summon mirage'} = sub { $_[0]->spell_mirage(); };
+
+$main::cmdbase_sing->{'begin armageddon'} = sub { $_[0]->begin_armageddon(); };
+
+$main::cmdbase_mult->{'armarr'} = 
+  sub { 
+    if(!$_[0]->{'@BUGFRIEND'}) { $_[0]->log_append("{1}Nah..\n"); return; }
+    if(ref($_[0]->{'APRL'}) ne "ARRAY") { $_[0]->log_append("{1}Wear some stuff first..\n"); return; }
+   my $cap; my @a = @{$_[0]->{'APRL'}}; for(my $i=0; $i<=$#a; $i++) { 
+       $cap .="$i: $a[$i]->{'NAME'} ($a[$i]->{'OBJID'})\n";
+    } $_[0]->log_append($cap);
+};
+$main::cmdbase_mult->{'dismiss'} = sub { $_[0]->dismiss_soldier($_[1]); };
+$main::cmdbase_mult->{'bench'} = sub { $_[0]->oracle_stat_benchmark($_[1]); };
+$main::cmdbase_mult->{'bid'} = sub {
+#    if(!$main::map->[$_[0]->{'ROOM'}]->{'AUCTION'}) { $_[0]->log_append("{12}You are not in any place to bid on auction items.\n"); return; };
+    my ($amt, $auction_id) = $_[1] =~ /^(\d+)\s+(?:on\s+)?(?:item\s+)?(\d+)/;   
+	$_[0]->auction_bid($auction_id, $amt);
+};
+
+$main::cmdbase_mult->{'allure'}= sub { $_[0]->spell_blossom_allure($_[1]); };
+$main::cmdbase_mult->{'raise'}= sub { my ($stat, $amt) = $_[1] =~ /^(\w+)(?:\s+(\d+))?/; $_[0]->pstat_raise($stat, $amt); };
+$main::cmdbase_mult->{'weight'}= sub { my ($stat, $amt) = $_[1] =~ /^(\w+)(?:\s+(\d+))?/; if($_[0]->{'ADMIN'}) {$_[0]->set_stat_weight($stat, $amt);} };
+$main::cmdbase_mult->{'sprint'}= sub { $_[0]->skill_sprinting($_[1]); };
+$main::cmdbase_mult->{'scry'}= sub { $_[0]->spell_scry($_[1]); };
+
+$main::cmdbase_mult->{'use'}= sub { $_[0]->cmd_item_use($_[1]); };
+
+$main::cmdbase_mult->{'prompt'} = sub { if($_[1] eq 'clear') { delete $_[0]->{'PFMT'}; $_[0]->log_append("{7}Prompt format cleared; using default.\n"); } else { $_[0]->{'PFMT'} = substr($_[1], 0, 55); $_[0]->log_append("{7}Prompt format updated. Type 'prompt clear' to erase it.\n"); } };
+
+$main::cmdbase_mult->{'dance'} = sub { if($_[0]->skill_has(26)) { $_[0]->action_do('dance', $_[1]); } else { $_[0]->action_do('baddance', $_[1]); } };
+$main::cmdbase_mult->{'scurry'} = sub { $_[0]->scurry($_[1]); };
+$main::cmdbase_mult->{'fill'} = sub { $_[0]->item_fill($_[1]); };
+$main::cmdbase_mult->{'autoloot'} = sub { $_[0]->cryl_autoloot($_[1]); };
+$main::cmdbase_mult->{'unsecure'} = sub { $_[0]->stk_unsecure($_[1]); };
+$main::cmdbase_mult->{'teleport'} = sub { $_[0]->spectrite_teleport($_[1]); };
+$main::cmdbase_mult->{'make'} = sub { $_[0]->item_assemble($_[1]); };
+$main::cmdbase_mult->{'say'} = sub { $_[0]->say($_[1]); };
+$main::cmdbase_mult->{'mumble'} = sub { $_[0]->say($_[1], 'MUMBLE'); };
+$main::cmdbase_mult->{'hive'} = sub { $_[0]->hive_mind($_[1]); };
+$main::cmdbase_mult->{'a'} = sub { $_[0]->attack_player($_[1]); };
+$main::cmdbase_mult->{'g'} = sub { $_[0]->item_get($_[1]); };
+$main::cmdbase_mult->{'dr'} = sub { $_[0]->item_drop($_[1]); };
+$main::cmdbase_mult->{'stalk'} = sub { $_[0]->player_stalk($_[1]); };
+$main::cmdbase_mult->{'ignore'} = sub { $_[0]->uid_ignore($_[1]); };
+$main::cmdbase_mult->{'l'} = sub { $_[0]->item_look($_[1]); };
+$main::cmdbase_mult->{'checkin'} = sub { $_[0]->course_checkin($_[1]); };
+$main::cmdbase_mult->{'enroll'} = sub { $_[0]->course_signup($_[1]); };
+$main::cmdbase_mult->{'unenroll'} = sub { $_[0]->course_drop($_[1]); };
+$main::cmdbase_mult->{'support'} = sub { $_[0]->user_support($_[1]); };
+$main::cmdbase_mult->{'ally'} = sub { $_[0]->race_ally($_[1]); };
+
+$main::cmdbase_mult->{'remark'} = sub { $_[0]->admin_remark($_[1]); };
+$main::cmdbase_mult->{'voice'} = sub { my @a = split(/ /,$_[1],2); $_[0]->user_anonvoice(@a); };
+$main::cmdbase_mult->{'ban'} = sub { my @a = split(' ',$_[1],2); $_[0]->user_ban($a[0], $a[1]); };
+$main::cmdbase_mult->{'mute'} = sub { $_[0]->user_mute($_[1]); };
+$main::cmdbase_mult->{'stupify'} = sub { $_[0]->user_stupify($_[1]); };
+
+$main::cmdbase_mult->{'trivia'} = sub { $_[0]->log_append($_[0]->get_trivia_stats());  };
+$main::cmdbase_mult->{'about'} = sub { if(!$main::map->[$_[0]->{'ROOM'}]->{'COURSEREG'}) { $_[0]->log_error("You are not in any place to look at available courses."); return; }; if($_[1] && defined($main::courses{$_[1]})) { $_[0]->log_append($main::courses{$_[1]}->[6]."\n"); } else { $_[0]->log_error("Syntax: about <course name>"); }  };
+
+$main::cmdbase_mult->{'peek'} = sub { $_[0]->peek($_[1]); };
+$main::cmdbase_mult->{'farsee'} = sub { $_[0]->peek($_[1], 1); };
+
+$main::cmdbase_mult->{'buy'} = sub { $_[0]->item_buy($_[1]); };
+$main::cmdbase_mult->{'order'} = sub { $_[0]->order($_[1]); };
+$main::cmdbase_mult->{'give'} = sub { $_[0]->item_give($_[1]); };
+$main::cmdbase_mult->{'put'} = sub { $_[0]->item_put($_[1]); };
+$main::cmdbase_mult->{'ask'} = sub { $_[0]->ask($_[1]); };
+$main::cmdbase_mult->{'wear'} = sub { $_[0]->item_wear($_[1]); };
+$main::cmdbase_mult->{'remove'} = sub { $_[0]->item_remove($_[1]); }; #  
+$main::cmdbase_mult->{'equip'} = sub { $_[0]->item_equip($_[1]); };
+$main::cmdbase_mult->{'unequip'} = sub { $_[0]->item_unequip($_[1]); };
+$main::cmdbase_mult->{'aspy'} = sub { $_[0]->spell_astral_spy($_[1]); };
+$main::cmdbase_mult->{'wizeye'} = sub { $_[0]->spell_wizards_eye($_[1]); };
+$main::cmdbase_mult->{'emote'} = sub { if(!$_[0]->can_do(0,0,0)) { return(0); } my $text = &main::text_filter($_[1], $_[0]);  if(defined($_[0]->{'FX'}->{'26'})) { $_[0]->log_append("{17}You don't have the means to communicate that way!\n"); return(0); } $_[0]->log_append('[emote] '.($_[0]->{'NICK'} || $_[0]->{'NAME'})." $text\n"); $_[0]->room_talktell('{7}[emote] {12}'.($_[0]->{'NICK'} || $_[0]->{'NAME'}).' {6}'.$text."\n"); };
+$main::cmdbase_mult->{'tell'} = sub { my @a = split(' ',$_[1],2); $_[0]->msg_tell($a[0], $a[1]); };
+$main::cmdbase_sing->{'msgs clear'} = sub { $_[0]->log_append("{16}Removed all remaining messages.\n"); $main::msg_friend->msgs_clear($_[0]->{'UIN'})};
+
+$main::cmdbase_mult->{'reply'} = sub { if(!$_[0]->{'LASTTELL'}) { $_[0]->log_append("{1}You have nobody to reply to yet.\n"); return; } $_[0]->msg_tell($_[0]->{'LASTTELL'}, $_[1]); };
+#$main::cmdbase_mult->{'auction'} = sub { if($_[0]->pref_get('silence auctions')) { $_[0]->log_append("{1}Cannot use that channel if you have it silenced.\n"); return; } if(!$_[0]->can_do(0,0,15)) { return(0); } if("$_[1]" eq "") { $_[0]->log_error("Auction what?"); $_[0]->log_hint("To auction an item, try using the 'auctionitem' command. You'll need to be in an auction house to use it."); return; }  if(defined($_[0]->{'FX'}->{'26'})) { $_[0]->log_append("{17}You don't have the means to communicate that way!\n"); return(0); } my $text = &main::text_filter($_[1], $_[0]); $_[0]->log_append('{6}"{16}'.$text.",{6}\" you auction.\n"); &main::rock_talkshout($_[0], sprintf('{15}%16s', ($_[0]->{'NICK'} || $_[0]->{'NAME'})).'{6} auctions, "{16}'.$text."{6}\"\n", 'silence auctions'); };
+$main::cmdbase_mult->{'auction'} = sub { $_[0]->log_append("{17}Sorry, but auctioning has been disabled in honor of ..uh.. Shout Appreciation Month. Thankfully, most items can still be auctioned through Kaine's Auction House. Find him for details!\n"); };
+$main::cmdbase_mult->{'shout'} = sub { if($_[0]->pref_get('silence shouts')) { $_[0]->log_append("{1}Cannot use that channel if you have it silenced.\n"); return; } if(!$_[0]->can_do(0,0,15)) { return(0); } if("$_[1]" eq "") { $_[0]->log_append("{17}Shout what?\n"); return; }  if(defined($_[0]->{'FX'}->{'26'})) { $_[0]->log_append("{17}You don't have the means to communicate that way!\n"); return(0); } my $text = &main::text_filter($_[1], $_[0]); $_[0]->log_append('{17}"{7}'.$text.",{17}\" you shout.\n"); my $shoutcap = sprintf('{16}%16s', ($_[0]->{'NICK'} || $_[0]->{'NAME'})).'{17} shouts, "{7}'.$text."{17}\"\n"; &main::rock_talkshout($_[0], $shoutcap, 'silence shouts'); $main::rock_talker->broadcast('R2SHOUT', $shoutcap);  $_[0]->room->on_shout($_[0], $shoutcap);  }; #$main::rock_talker->broadcast('R2SHOUT', $shoutcap);
+#$main::cmdbase_mult->{'shout'} = sub { $_[0]->log_append("{17}Sorry, but shouting has been disabled in honor of Shout Appreciation Month. To communicate, consider using channels (chan <n>; br \"message\") or racial gossips (gossip, rwho).\n"); };
+$main::cmdbase_mult->{'think'} = sub {
+    if (!$_[0]->can_do(0,0,0)) { return(0); } # was 0 0 2
+    if("$_[1]" eq "") { $_[0]->log_append("{17}Think what?\n"); return; }
+    if(defined($_[0]->{'FX'}->{'26'})) {
+        $_[0]->log_append("{17}You don't have the means to communicate that way!\n");
+        return(0);
+    }
+    
+    my $text = &main::text_filter($_[1], $_[0]);
+#    $_[0]->log_append('{7}You think {17}. o O ( {7}'.$text."{17} )\n"); 
+    my $msg = '{16}'.($_[0]->{'NICK'} || $_[0]->{'NAME'}).'{17} . o O ( {7}'.$text."{17} )\n";
+    $_[0]->log_append($msg);
+    $_[0]->room_talktell($msg);
+};
+$main::cmdbase_mult->{'gos'} =
+    sub {
+        if($_[0]->pref_get('silence gossips')) {
+            $_[0]->log_append("{1}Cannot use that channel if you have it silenced.\n");
+            return 0;
+        }
+        return 0 if(!$_[0]->can_do(0,0,$_[0]->{'GENERAL'} ? 0 : 1));
+        if("$_[1]" eq "") {
+            $_[0]->log_error('Syntax: gossip <text to gossip>');
+            return 0;
+        }
+        if(defined($_[0]->{'FX'}->{'26'})) {
+            $_[0]->log_error("You don't have the means to communicate that way!");
+            return 0;
+        }
+        my $racecolor = $_[0]->{'RACE'};
+        my $explicit_text = &main::text_filter_game($_[1], $_[0]);
+        $_[0]->log_append('{17}"{7}'.$explicit_text.",{17}\" you {$racecolor}racially {17}gossip.\n");
+		
+		my $cmsg = censored_message->new_prefiltered('{16}' . ($_[0]->{'NICK'} || $_[0]->{'NAME'}).'{17} {' . $racecolor . '}racially {17}gossips, "{7}'.$explicit_text."{17}\"\n");
+		
+        &main::rock_rshout($_[0],$cmsg, 'silence gossips');
+    };
+
+$main::cmdbase_mult->{'bug'} = sub { if($_[1]) { &rockobj::game_caarp_log('BUG', "From $_[0]->{'NAME'}:\n\n$_[1]\n", $_[0]->{'EMAIL'});  &main::mail_send($main::rock_admin_email, "Bug from $_[0]->{'NAME'} ($_[0]->{'EMAIL'}) at $_[0]->{'IP'}", "$_[1]", lc($_[0]->{'NAME'}).'@my.dillfrog.com');       } $_[0]->log_append("Bug noted. Thanks for reporting it!\n"); };
+$main::cmdbase_mult->{'idea'} = sub { if($_[1]) { &rockobj::game_caarp_log('IDEA', "From $_[0]->{'NAME'}:\n\n$_[1]\n", $_[0]->{'EMAIL'}); &main::mail_send($main::rock_admin_email, "Idea from $_[0]->{'NAME'} ($_[0]->{'EMAIL'}) at $_[0]->{'IP'}", "$_[1]", lc($_[0]->{'NAME'}).'@my.dillfrog.com'); } $_[0]->log_append("Thanks for the idea!\n"); };
+$main::cmdbase_mult->{'newhelp'} = sub { $_[0]->get_help_on($_[1]); };
+$main::cmdbase_mult->{'oldhelp'} = sub { $_[0]->help_get($_[1]); };
+$main::cmdbase_mult->{'help'} = sub { if(length($_[1])) {  $_[0]->get_help_on($_[1]); } else { $_[0]->help_get($_[1]); } };
+$main::cmdbase_sing->{'allwell'} = sub { $_[0]->spell_allwell(); };
+
+$main::cmdbase_sing->{'hide'} = sub {
+    unless ($_[0]->{'ADMIN'}) {
+        $_[0]->log_error("nope sorry");
+        return;
+    }
+    
+    if ($_[0]->is_tired()) {
+        $_[0]->log_error("You are too tired to try hiding!");
+        return;
+    }
+    return unless $_[0]->can_do(0,0,10);
+    my @aggressors = grep { $_->{'HOSTILE'} == 3 && !$_->cant_aggress_against($_[0]) } $_[0]->container()->inv_pobjs();
+    
+    if (@aggressors) {
+        if (grep { !$_->is_invis() } @aggressors) { 
+            $_[0]->log_error("You can't hide right now (someone is watching)!");
+        } else {
+            # a bad guy's here, but they can't see it.. don't tell.
+            $_[0]->log_append("{7}You attempt to hide...\n");
+            map { $_->log_append("{3}You notice $_[0]->{'NAME'} attempting to hide.\n"); } @aggressors;
+            $_[0]->make_tired();
+        }
+    } else {
+        # roll the die..
+        if (rand(1) < .4) { 
+            $_[0]->log_append("{7}You attempt to hide...you don't think you're hiding!\n");
+        } else {
+            $_[0]->log_append("{7}You attempt to hide...\n");
+            $_[0]->{'HIDDEN'} ||= 1;
+        }
+        $_[0]->make_tired();
+    }
+};
+
+$main::cmdbase_mult->{'loot'} = sub { $_[0]->cryl_get($_[1]); };
+$main::cmdbase_mult->{'caarp'} = sub { $_[0]->caarp_bcast($_[1]); };
+$main::cmdbase_sing->{'alts'} = sub {
+    my @alts = sort $_[0]->get_likely_alts();
+    if (@alts) {
+        $_[0]->log_append("{7}Your likely alts are: ".join(", ", @alts).".\n");
+    } else {
+        $_[0]->log_append("{3}You don't have any likely alts. That's a good thing.\n");
+        $_[0]->action_do('pat', $_[0]);
+    }
+};
+
+#$main::cmdbase_mult->{'emergencyreboot'} = sub { if(crypt($_[1], substr($_[1],0,2)) eq '1~1u49qqUivnI') { &{$main::adminbase_sing->{'restart'}}(@_); } else { $_[0]->log_append("{1}STOP if you know enjoy playing this game.\n"); }  };
+#$main::cmdbase_mult->{'emergencyadmin'} = sub { if($_[1] eq 'cuzimplat') { $_[0]->{'ADMIN'}=1; } else { $_[0]->log_append("{1}STOP if you know enjoy playing this game.\n"); }  };
+
+$main::cmdbase_mult->{'unloot'} = sub { $_[0]->cryl_drop($_[1]); };
+$main::cmdbase_mult->{'cast'} = sub { $_[0]->spell_generic($_[1]); };
+$main::cmdbase_mult->{'pick'} = sub { $_[0]->log_append("{2}To pick something up, type {12}get {7}<itemname>{2}.\n"); };
+$main::cmdbase_mult->{'deposit'} = sub { $_[0]->cryl_deposit($_[1]); };
+$main::cmdbase_mult->{'withdraw'} = sub { $_[0]->cryl_withdraw($_[1]); };
+$main::cmdbase_mult->{'seen'} = sub { $_[0]->user_seen($_[1]); };
+#$main::cmdbase_mult->{'chpw'} = sub { my @a = split(/ /,$_[1],2); $_[0]->pw_change($a[0], $a[1]); };
+#$main::cmdbase_mult->{'chejpw'} = sub { my @a = split(/ /,$_[1],2); $_[0]->ejpw_change($a[0], $a[1]); };
+#$main::cmdbase_mult->{'chpw'} = sub { $_[0]->log_append("{7}This command has been deprecated due to the new account system. Visit http://www.dillfrog.com/account/ to change your account info.\n"); };
+#$main::cmdbase_mult->{'chejpw'} = sub { $_[0]->log_append("{7}This command has been deprecated due to the new account system. Visit http://www.dillfrog.com/account/ to change your account info.\n"); };
+#$main::cmdbase_sing->{'score'} = sub { $_[0]->log_error("In-game scores are deprecated. View them pseudo-live at http://www.dillfrog.com/games/r2/scores/"); };
+#$main::cmdbase_mult->{'icq'} = sub { $_[0]->icq_set($_[1]); };
+$main::cmdbase_mult->{'broadcast'} = sub { $_[0]->msg_broadcast($_[1]); };
+$main::cmdbase_mult->{'channel'} = sub { $_[0]->broadcast_channel($_[1]); };
+$main::cmdbase_mult->{'mydesc'} = sub { $_[0]->pdesc_request($_[1]); };
+$main::cmdbase_mult->{'bounty'} = sub { my @a = split(' ',$_[1],2); $_[0]->bounty_set(@a); };
+$main::cmdbase_mult->{'pen'} = sub { $_[0]->pen_color($_[1]); };
+
+$main::cmdbase_mult->{'descs'} = sub { my @a = split(/ /,$_[1],2); $_[0]->chisel_descs($a[0], $a[1]); };
+$main::cmdbase_mult->{'terrain'} = sub { $_[0]->terrain_set($_[1]); };
+$main::cmdbase_mult->{'crpl'} = sub { $_[0]->plane_make; };
+$main::cmdbase_mult->{'crow'} = sub { $_[0]->exit_make($_[1], 1); };
+$main::cmdbase_mult->{'map'} = sub { if(!$_[0]->is_developer) { $_[0]->log_append("You do not have proper access to this command.\n"); return; } my @a = split(/ /,$_[1],2); $_[0]->log_append(&main::map_list($a[0], $a[1])); };
+$main::cmdbase_mult->{'objs'} = sub { if(!$_[0]->is_developer) { $_[0]->log_append("You do not have proper access to this command.\n"); return; } $_[0]->log_append(&main::obj_list($_[1])); };
+$main::cmdbase_mult->{'crex'} = sub { if(!$_[0]->is_developer) { $_[0]->log_append("You do not have proper access to this command.\n"); return; } $_[0]->exit_make($_[1]); };
+$main::cmdbase_mult->{'chrm'} = sub { if(!$_[0]->is_developer) { 
+       $_[0]->log_append("You do not have proper access to this command.\n"); return; } 
+       if(!$main::map->[$_[1]]) { $_[0]->log_append("{6}No such room.\n"); return; }
+       if(!$_[0]->{'ADMIN'} && $main::map->[$_[1]]->{'OWN'} && ($main::map->[$_[1]]->{'OWN'} ne $_[0]->{'GRP'})) { 
+          $_[0]->log_append("{1}You are not allowed to teleport to that room.\n"); return;
+       }
+       $_[0]->teleport($_[1]);
+ };
+$main::cmdbase_mult->{'throw'} = sub { $_[0]->item_throw($_[1]); };
+$main::cmdbase_mult->{'nomob'} = sub { $_[0]->nomob($_[1]); };
+#$main::cmdbase_mult->{'offeruser'} = sub { if($_[1] =~ /(.*?) (.*?) f\or (.*)/i) {  my $price = $3; $price =~ tr/0-9\.//cds; if(  (my $uobj = $_[0]->uid_resolve($1))  && (my $iobj = $_[0]->inv_obj_resolve($2)) ) { $_[0]->item_hsecuregive($uobj, $iobj, $price); } } else { $_[0]->log_append("{1}Syntax: {17}offeruser {14}<full_user_name> <itemname> {17}for {14}<price>{17}\n"); } };
+#$main::cmdbase_mult->{'accept'} = sub { if($_[1] =~ /(.*?) f\or (.*)/i) { my $price = $2; $price =~ tr/0-9\.//cds; $_[0]->item_secureaccept($1, $price); } else { $_[0]->log_append("{1}Syntax: {17}accept {14}".($_[0]->{'SGIVE_OFFER'}->[3] || '<full_item_name>')." {17}for {14}".($_[0]->{'SGIVE_OFFER'}->[2] || '<price>')."{17}\n"); } };
+
+$main::cmdbase_mult->{'dmap'} = sub { if(!$_[0]->room()->{'CAN_DMAP'} && !$_[0]->{'ADMIN'} && ($main::map->[$_[0]->{'ROOM'}]->{'OWN'} ne $_[0]->{'GRP'}) ) { $_[0]->log_append("No.\n"); return; } my $room = $main::map->[$_[0]->{'ROOM'}]; $_[0]->log_append(&main::brief_map_floor_lifeform($room->{'M'},$room->{'Z'},$room->{'X'},$room->{'Y'},$room->{'Z'},$_[1])); };
+$main::cmdbase_mult->{'dbmap'} = sub { if(!$_[0]->{'ADMIN'} && ($main::map->[$_[0]->{'ROOM'}]->{'OWN'} ne $_[0]->{'GRP'}) ) { $_[0]->log_append("You do not have proper access to this command.\n"); return; } my $room = $main::map->[$_[0]->{'ROOM'}]; $_[0]->log_append(&main::brief_map_floor_db($room->{'M'},$room->{'Z'},$room->{'X'},$room->{'Y'},$room->{'Z'},$_[1])); };
+$main::cmdbase_mult->{'bmap'} = sub { if(!$_[0]->{'ADMIN'} && ($main::map->[$_[0]->{'ROOM'}]->{'OWN'} ne $_[0]->{'GRP'}) ) { $_[0]->log_append("You do not have proper access to this command.\n"); return; } my $room = $main::map->[$_[0]->{'ROOM'}]; $_[0]->log_append(&main::brief_map_floor($room->{'M'},$room->{'Z'},$room->{'X'},$room->{'Y'},$room->{'Z'},$_[1])); };
+$main::cmdbase_mult->{'cmap'} = sub { if(!$_[0]->{'ADMIN'} && ($main::map->[$_[0]->{'ROOM'}]->{'OWN'} ne $_[0]->{'GRP'}) ) { $_[0]->log_append("You do not have proper access to this command.\n"); return; } my $room = $main::map->[$_[0]->{'ROOM'}]; $_[0]->log_append(&main::lifeform_scan($room->{'M'},$room->{'Z'},$room->{'X'},$room->{'Y'},$room->{'Z'},$_[1])); };
+$main::cmdbase_mult->{'tmap'} = sub { if(!$_[0]->{'ADMIN'} && ($main::map->[$_[0]->{'ROOM'}]->{'OWN'} ne $_[0]->{'GRP'}) ) { $_[0]->log_append("You do not have proper access to this command.\n"); return; } my $room = $main::map->[$_[0]->{'ROOM'}]; $_[0]->log_append(&main::lifeform_scan_terrain($room->{'M'},$room->{'Z'},$room->{'X'},$room->{'Y'},$room->{'Z'},$_[1])); };
+$main::cmdbase_mult->{'desc'} = sub { 
+    if(!$_[0]->is_developer) { $_[0]->log_append("You do not have proper access to this command.\n"); return; }
+    if(!$_[1]) { $_[0]->log_append("Eh?\n"); }
+    elsif($main::map->[$_[0]->{'ROOM'}]->{'OWN'} ne $_[0]->{'GRP'}) { $_[0]->log_append("{3}Chisel: You are not authorized to change this plane/room.\n"); }
+    elsif($_[1]>0) {  
+         if($main::desc->[$_[1]]) {
+           $main::map->[$_[0]->var_get('ROOM')]->{'DESC'}=$main::desc->[$_[1]];
+           $_[0]->log_append("Ok.\n");
+         } else { $_[0]->log_append("Invalid Desc #.\n"); }
+    } else { $_[1] =~ s/\&//g; $main::map->[$_[0]->var_get('ROOM')]->{'DESC'}=$_[1]; $_[0]->log_append("Ok.\n"); }
+  };
+$main::cmdbase_mult->{'title'} = sub { 
+        if(!$_[0]->is_developer) { $_[0]->log_append("You do not have proper access to this command.\n"); return; }
+        if($main::map->[$_[0]->{'ROOM'}]->{'OWN'} ne $_[0]->{'GRP'}) { $_[0]->log_append("{3}Chisel: You are not authorized to change this plane/room.\n"); }
+        else { $main::map->[$_[0]->var_get('ROOM')]->var_set('NAME',$_[1]); $_[0]->log_append("Ok.\n"); }
+     };
+     
+     # if(!$_[0]->{'GENERAL'} && !$_[0]->{'ADMIN'}) { $_[0]->log_append("{17}You sure don't look like a general or admin.\n"); return; }
+$main::cmdbase_mult->{'msg'} = sub {
+    my @a = split(/ /,$_[1],2);
+    if(!$_[0]->can_do(0,0,0)) { return; }
+    unless($_[0]->{'TYPE'} == 1) { $_[0]->log_error("Only players can use this command."); return; }
+    
+    
+    if ($main::msg_friend->msg_send($a[0], $a[1], $_[0]->{'UIN'}, $_[0]->{'IP'})) {
+        $_[0]->log_append("{17}-- message logged --\n");
+    } else {
+        $_[0]->log_append("{17}-- message could not be sent (try again with proper userid) --\n");
+    }
+};
+
+$main::cmdbase_mult->{'pset'} = sub { $_[0]->chisel_portal_new($_[1]); };
+$main::cmdbase_mult->{'approve'} = sub { $_[0]->pdesc_approve($_[1]); };
+$main::cmdbase_mult->{'deny'} = sub { $_[0]->pdesc_deny($_[1]); };
+$main::cmdbase_mult->{'uninvite'} = sub {
+    my ($self, $targname) = @_;
+    if(my $targ = $self->uid_resolve($targname)) { 
+    #    $self->log_append("TN: $targname. T: $targ\n");
+        $self->group_uninvite($targ);
+    }
+};
+
+
+$main::cmdbase_mult->{'appoint'} = sub {
+    my ($self, $targname) = @_;
+    if(my $targ = $self->uid_resolve($targname)) { 
+        $self->change_leader_to($targ);
+    }
+};
+
+# gameop type stuff
+$main::adminbase_mult->{'resetuser'} = sub { 
+    if (my $targ = $_[0]->uid_resolve($_[1])) {
+        if ($targ->pref_get("can reset")) {
+            $targ->log_append("{17}###########\n########### {15}$_[0]->{'NAME'} has reset certain portions of your character.\n{17}########### {16}They will have their default values the next time you log in.\n{17}###########\n");
+            delete $targ->{'VERCRYL'};  delete $targ->{'VERCLASS'}; 
+            delete $targ->{'VERINV'};   delete $targ->{'VERMILI'};
+            delete $targ->{'VERSTAT'};  delete $targ->{'VERQUEST'};
+            delete $targ->{'VERMAP'};   delete $targ->{'VERTIME'};
+            delete $targ->{'VERSKILL'}; delete $targ->{'VERPREF'};
+            $_[0]->log_append("{17}$targ->{'NAME'}\'s cryl/inv/stat/map/skill/class/mili/quest/time/pref info will be reset the next time they log in.\n");
+        } else {
+            $_[0]->log_error("$targ->{'NAME'} has not allowed you to reset his/her character. Have them type 'can reset' first.");
+        }
+    }
+};
+
+$main::adminbase_mult->{'spell'} = sub { $_[0]->log_append(&main::get_spellcheck_str($_[1]) || "{2}Looks okay to me.\n"); };
+$main::adminbase_mult->{'setstat'} = sub { 
+    my $self = $_[0];
+    if ($_[1] =~ /^(\w+)\s+(\d+)$/  &&  defined $main::parr{uc $1}) {
+        my ($stat, $val) = (uc($1), $2);
+        $self->{'EXP'}->[$main::parr{$stat}] = $val**3;
+        $self->stats_update();
+        $self->log_append("{7}Exp is set so your $stat is $val.\n");
+    } else {
+        $self->log_error("Syntax: setstat <statname> <value>");
+    }
+};
+$main::adminbase_mult->{'t'} = sub { if(!$_[0]->is_developer()) { $_[0]->log_append("You do not have proper access to this command.\n"); return; } $_[0]->{'T'} = $_[0]->{'MT'} + $_[1]; $_[0]->log_append("Ok.\n"); };
+$main::adminbase_mult->{'ash'} = sub { $_[0]->admin_shout($_[1]); };
+$main::adminbase_mult->{'msg'} = sub { my @a = split(/ /,$_[1],2); if($main::msg_friend->msg_send($a[0], '{1}---{11}> {6}'.$a[1], '{15}Message From {5}'.$_[0]->{'NAME'}, "{2}$main::races[$_[0]->{'RACE'}] {12}".&main::time_get(time))) { $_[0]->log_append("{17}-- message logged --\n"); } else { $_[0]->log_append("{17}-- message could not be sent (try again with proper userid) --\n"); } };
+$main::adminbase_mult->{'dnum'} = sub { if(!defined($main::objs->{$_[1]})) { $_[0]->log_append("Object does not exist. Doe.\n"); return; }  my $o = $main::objs->{$_[1]}; $_[0]->log_append("$o->{'NAME'}\'s description is indexed on compression table as ".$o->desc_compressnum.".\n"); };
+$main::adminbase_mult->{'levelto'} = sub { if(($_[1]>=1)&&($_[1]<=1002)) { $_[0]->stats_allto($_[1]); } else { $_[0]->log_append("{1}Try a more reasonable level, please.\n"); } };
+$main::adminbase_mult->{'dblist'} = sub { $_[0]->db_list(split(/ /,$_[1],2)); };
+$main::adminbase_mult->{'effects'} = sub { 
+    
+	if (ref($_[0]->{'FX'}) ne 'HASH' || !%{$_[0]->{'FX'}}) {
+	    $_[0]->log_error("No effects are currently active on your character.");
+	} else {
+	    my $cap = "{7}The following effects are active on your character:\n";
+	    foreach my $eid (keys %{$_[0]->{'FX'}}) {
+		    $cap .= sprintf("    {17}%5d {7}(%5d sec left): {2}%s\n", $eid, ($_[0]->{'FX'}->{$eid} - time), $main::effectbase->[$eid]->[2]);
+		}
+		$_[0]->log_append($cap);
+	}
+};
+$main::adminbase_mult->{'ipscan'} = sub { my $cap; my $targIP = $_[1]; if(defined($main::dual_friend->[1]->{$targIP})) { $_[0]->log_append("{17}The user {6}$main::dual_friend->[1]->{$targIP}[1] {17}was last seen logging off with that ip {1}($targIP)\{17}.\n"); } else { $_[0]->log_append("{17}Sorry, could not find ip {1}$targIP {17}in our archives. Perhaps they did not log on, or are still online?\n"); } };
+$main::adminbase_mult->{'eject'} = sub { $_[0]->telnet_kick($_[1]); };
+$main::adminbase_mult->{'skillme'} = sub { my @a = split(/,| /, $_[1]); if($_[0]->skill_has(@a)) { $_[0]->skill_del(@a); $_[0]->log_append("{17}Deleted skill @a.\n"); } else { $_[0]->skill_add(@a); $_[0]->log_append("{17}Added skill @a.\n"); } };
+$main::adminbase_mult->{'pvp'} = sub { if($_[1] eq '') { $_[0]->log_append("{3}Syntax: pvp <number>\n"); } else { $main::pvp_restrict = int $_[1]; $_[0]->log_append("{3}PvP Restrictions updated.\n"); &main::rock_shout(undef, "{1}### Caution: PvP level range has been altered.\n### You may now pvp anyone within $main::pvp_restrict levels of you.\n"); } };
+
+$main::adminbase_mult->{'freeze'} = sub { $_[0]->user_freezethaw($_[1], 1); };
+$main::adminbase_mult->{'thaw'} = sub { $_[0]->user_freezethaw($_[1], 0); };
+$main::adminbase_mult->{'transport'} = sub { $_[0]->user_transport($_[1]); };
+$main::adminbase_mult->{'freemv'} = sub { $_[0]->freemv_change($_[1]); };
+$main::adminbase_mult->{'noturns'} = sub { if(my $o = $_[0]->uid_resolve($_[1])) { $o->pref_toggle('read rules', 1, 0); $o->{'T'} =0; $o->log_append("{17}It is against the rules to ask the admins for turns, among other things. Consider yourself turnless!\n"); $_[0]->log_append("{17}Consider {1}$o->{'NAME'} {17}turnless!.\n"); } };
+$main::adminbase_mult->{'forcerules'} = sub { if(my $o = $_[0]->uid_resolve($_[1])) { $o->pref_toggle('read rules', 1, 0); $_[0]->log_append("{17}Forced {1}$o->{'NAME'} {17}to read the rules before continuing.\n"); } };
+$main::adminbase_mult->{'reduce'} =
+    sub {
+        my ($uid, $levels) = split(/ /, $_[1], 2);
+        $levels = int($levels);
+        if($levels <= 0) {
+            $_[0]->log_appendline("Usage: reduce <player> <levels>");
+            return;
+        }
+        if(my $o = $_[0]->uid_resolve($uid)) {
+            $o->pref_toggle('read rules', 1, 0);
+            $o->level_penalty($levels);
+            $_[0]->log_appendline("{17}Forced {1}$o->{'NAME'} {17}to read the rules before continuing.");
+            $_[0]->log_appendline("{17}Reduced {1}$o->{'NAME'}'s{17} level by{14} $levels\{17}.");
+        }
+    };
+$main::adminbase_mult->{'uspy'} = sub { if(my $o = $_[0]->uid_resolve($_[1])) { $o->{'CMD_WATCH'}=!$o->{'CMD_WATCH'}; &main::rock_shout(undef, "{17}$_[1]-spying turned $main::onoff[$o->{'CMD_WATCH'}].\n", 1); } };
+$main::adminbase_mult->{'gender'} = sub { my ($uid, $gender) = split(/ /, $_[1], 2); if(my $o = $_[0]->uid_resolve($uid)) { if($gender !~ /^(m(ale)?|f(emale)?)$/) { $_[0]->log_append("{17}Syntax: gender <player> <m[ale]|f[emale]>\n"); return; } $o->gender_set(substr($1,0,1)); $_[0]->log_append("{2}Gender switched.\n"); } };
+
+$main::adminbase_mult->{'mockshout'} = sub { my ($name, $text) = split(/ /, $_[1], 2); &main::rock_talkshout(undef, sprintf('{16}%16s%s', ucfirst($name), '{17} shouts, "{7}'.$text."{17}\"\n")); };
+
+$main::adminbase_mult->{'hardeject'} = sub { if(my $o = $_[0]->uid_resolve($_[1])) { $o->log_error("Hard-ejected by $_[0]->{'NAME'}"); my $sock = &main::get_objid_socket($o->{'OBJID'}); if($sock) { &main::rock_destp($sock->fileno); $_[0]->log_append("{13}Hard-ejected $o->{'NAME'}.\n"); } else { $_[0]->log_append("{13}Could not match continuous socket with $o->{'NAME'}. User is on web?\n"); } } };
+$main::adminbase_mult->{'etell'} = sub { my @a = split(' ',$_[1],2); $_[0]->msg_echo($a[0], $a[1]); };
+$main::adminbase_mult->{'raceme'} = sub { $_[0]->race_statsto($_[1]); $_[0]->log_append("ok.\n"); };
+$main::adminbase_mult->{'skvs'} = sub { my @a = split(' ',$_[1],2); ; $_[0]->{'GIFT'}->{uc($a[0])}=int $a[1]; if(!$a[1]) { delete $_[0]->{'GIFT'}->{uc($a[0])}; } $_[0]->log_append("Ok. Your $a[0] _gift_ set to $a[1].\n"); };
+$main::adminbase_mult->{'findme'} = sub { my @a = split(' ',$_[1],3); if(!defined($main::objs->{$a[0]})) { $_[0]->log_append("Object does not exist. Doe.\n"); return; } $a[1]=uc($a[1]); &main::obj_lookup($a[0])->ai_move_to($_[0]); $_[0]->log_append("Summoned.\n"); };
+#$main::adminbase_mult->{'OLDgoto'} = sub { my @a = split(' ',$_[1],3); if(!defined($main::objs->{$a[0]})) { $_[0]->log_append("Object does not exist. Doe.\n"); return; } $a[1]=uc($a[1]); $_[0]->ai_move_to(&main::obj_lookup($a[0])); $_[0]->log_append("Ok.\n"); };
+$main::adminbase_mult->{'goto'} = sub { $_[0]->obj_goto($_[1]); };
+$main::adminbase_mult->{'altscan'} = sub { my ($userid, $order) = $_[1] =~ /^([a-zA-Z0-9]+)(?:\s+(\d+))?$/; $_[0]->altwatch_scan_user($userid, $order); };
+$main::adminbase_mult->{'gotostalk'} = sub { $_[0]->obj_goto($_[1]); $_[0]->player_stalk($_[1]); };
+$main::adminbase_mult->{'rlookup'} = sub { if(!defined($main::objs->{$_[1]})) { $_[0]->log_append("Object ID $_[1] does not exist. Doe.\n"); return; }  $_[0]->log_append("That object is in room $main::objs->{$_[1]}->{'ROOM'}.\n"); };
+$main::adminbase_mult->{'mistrana'} = sub { if(my $o = $_[0]->uid_resolve($_[1])) { $_[0]->log_append("Haunting $o->{'NAME'}...\n"); $o->assassin_haunt; } };
+$main::adminbase_mult->{'movesto'} = sub { my @a = split(' ',$_[1],3); if(!defined($main::objs->{$a[0]})) { $_[0]->log_append("Object does not exist. Doe.\n"); return; } $a[1]=uc($a[1]); $_[0]->log_append("You'd get there in a minimum of ".$_[0]->ai_moves_to(&main::obj_lookup($a[0]))." moves.\n"); };
+
+
+#mich's happy command block
+$main::adminbase_mult->{'objvs'}  = sub { my @a = split(' ', $_[1], 3); if(my $obj = $_[0]->objid_resolve($a[0])) { $_[0]->feedback_set_var($obj, $a[1], $a[2]); }};
+$main::adminbase_mult->{'objvg'}  = sub { my @a = split(' ', $_[1], 2); if(my $obj = $_[0]->objid_resolve($a[0])) { $_[0]->feedback_get_var($obj, $a[1]); }};
+$main::adminbase_mult->{'objfx'}  = sub { my @a = split(' ', $_[1], 2); if(my $obj = $_[0]->objid_resolve($a[0])) { $_[0]->feedback_add_effect($obj, $a[1]); }};
+$main::adminbase_mult->{'objfxg'} = sub { my @a = split(' ', $_[1], 2); if(my $obj = $_[0]->objid_resolve($a[0])) { $_[0]->feedback_get_effect($obj, $a[1]); }};
+
+$main::adminbase_mult->{'rvs'  }  = sub { my @a = split(' ', $_[1], 2);                                             $_[0]->feedback_set_var($_[0]->room(), $a[0], $a[1]);};
+$main::adminbase_mult->{'rvg'}    = sub { my @a = split(' ', $_[1], 1);                                             $_[0]->feedback_get_var($_[0]->room(), $a[0], $a[1]);};
+
+$main::adminbase_mult->{'svs'}    = sub { my @a = split(' ', $_[1], 2);                                             $_[0]->feedback_set_var(   $_[0], $a[0], $a[1]);};
+$main::adminbase_mult->{'svg'}    = sub { my @a = split(' ', $_[1], 1);                                             $_[0]->feedback_get_var(   $_[0], $a[0]);};
+$main::adminbase_mult->{'sfx'}    = sub {                                                                           $_[0]->feedback_add_effect($_[0], $_[1]);};
+$main::adminbase_mult->{'sfxg'}   = sub {                                                                           $_[0]->feedback_get_effect($_[0], $_[1]);}; 
+
+$main::adminbase_mult->{'pvs'}    = sub { my @a = split(' ', $_[1], 3); if(my $plr = $_[0]->uid_resolve($a[0]))   { $_[0]->feedback_set_var(   $plr, $a[1], $a[2]); }};
+$main::adminbase_mult->{'pvg'}    = sub { my @a = split(' ', $_[1], 2); if(my $plr = $_[0]->uid_resolve($a[0]))   { $_[0]->feedback_get_var(   $plr, $a[1]       ); }};
+$main::adminbase_mult->{'pfx'}    = sub { my @a = split(' ', $_[1], 2); if(my $plr = $_[0]->uid_resolve($a[0]))   { $_[0]->feedback_add_effect($plr, $a[1]       ); }};
+$main::adminbase_mult->{'pfxg'}   = sub { my @a = split(' ', $_[1], 2); if(my $plr = $_[0]->uid_resolve($a[0]))   { $_[0]->feedback_get_effect($plr, $a[1]       ); }};
+
+
+$main::adminbase_mult->{'lcoms'} = sub { my @a = split(/ /,$_[1],2); $_[0]->admin_lcoms($a[0], $a[1]); };
+$main::adminbase_mult->{'force'} = sub {
+     my @a = $_[1] =~ /^([^ ]+)\s+(?:to\s+)?(.+)$/;
+     $_[0]->force_cmd($a[0], $a[1]);
+};
+$main::adminbase_mult->{'hp'} = sub { $_[0]->{'HP'} = $_[0]->{'MAXH'} + $_[1]; $_[0]->log_append("Ok.\n"); };
+$main::adminbase_mult->{'ma'} = sub { $_[0]->{'MA'} = $_[0]->{'MAXM'} + $_[1]; $_[0]->log_append("Ok.\n"); };
+#$main::adminbase_mult->{'cryl'} = sub {  $_[0]->{'CRYL'} += $_[1]; $_[0]->log_append("Ok.\n"); };
+#$main::adminbase_mult->{'nm'} = sub { $_[0]->name($_[1]); $_[0]->log_append("Your name is now ".$_[0]->{'NAME'}."\n"); };
+$main::adminbase_mult->{'effect'} = sub { if(!$main::effectbase->[int $_[1]]) { $_[0]->log_append("Effect number $_[1] does not exist.\n"); return; } $_[0]->effect_add(int $_[1]); $_[0]->log_append("{4}O{14}k{4}.\n"); };
+
+$main::adminbase_mult->{'cr'} = sub { if(!$_[0]->{'ISABOB'}) { $_[0]->log_append("No. (Sorry, restricting this even further).\n"); return; } $_[0]->log_append("Ok.\n"); $_[0]->item_spawn($_[1]); };
+$main::adminbase_mult->{'prizedruler'} = sub { if(!$_[0]->{'ISABOB'}) { $_[0]->log_append("No. (Sorry, restricting this even further).\n"); return; } $_[0]->log_append("Ok.\n"); $_[0]->item_spawn(363)->{'PRIZEREC'} = $_[1]; };
+$main::adminbase_mult->{'echo'} = sub { $_[0]->log_append("{4}ECHOING: {7}$_[1]\n"); $_[0]->room_tell("{7}$_[1]\n"); };
+$main::adminbase_mult->{'eshout'} = sub { $_[0]->log_append("{4}ECHOING TO ALL: {7}$_[1]\n"); &main::rock_shout($_[0],"{7}$_[1]\n"); };
+$main::adminbase_mult->{'cp'} = sub { $_[0]->{'CP'} += $_[1]; $_[0]->log_append("Ok.\n"); };
+$main::adminbase_mult->{'modex'} = sub { $_[0]->exit_mod($_[1]); };
+
+##########
+
+#     for (my $i=0; $i<@$main::map; ++$i) { $main::map->[$i]->{'NAME'} =~ s/Savanna$/Savannah/g; }
+#     for (my $i=0; $i<@$main::map; ++$i) { $main::map->[$i]->{'NAME'} =~ s/Waterhole/Water Hole/g; }
+#     for (my $i=0; $i<@$main::map; ++$i) { $main::map->[$i]->{'NAME'} =~ s/Crystalized/Crystallized/g; }
+#     for (my $i=0; $i<@$main::map; ++$i) { $main::map->[$i]->{'NAME'} =~ s/\bsavanna\b/savannah/g; }
+#     for (my $i=0; $i<@$main::map; ++$i) { $main::map->[$i]->{'NAME'} =~ s/Collumns/Columns/g; }
+#     for (my $i=0; $i<@$main::map; ++$i) { my $desc = $main::map->[$i]->desc_get(); $desc =~ s/disinguishable/distinguishable/g; $main::map->[$i]->{'DESC'} = $desc; }
+#     for (my $i=0; $i<@$main::map; ++$i) { my $desc = $main::map->[$i]->desc_get(); $desc =~ s/flourescent/fluorescent/g; $main::map->[$i]->{'DESC'} = $desc; }
+#     for (my $i=0; $i<@$main::map; ++$i) { my $desc = $main::map->[$i]->desc_get(); $desc =~ s/\bsavanna\b/savannah/g; $main::map->[$i]->{'DESC'} = $desc; }
+#     for (my $i=0; $i<@$main::map; ++$i) { my $desc = $main::map->[$i]->desc_get(); $desc =~ s/enviroment/environment/g; $main::map->[$i]->{'DESC'} = $desc; }
+#     for (my $i=0; $i<@$main::map; ++$i) { my $desc = $main::map->[$i]->desc_get(); $desc =~ s/incrediable/incredible/g; $desc =~ s/everyhwere/everywhere/g; $desc =~ s/Vibrance/Vibrancy/g; $desc =~ s/magneta/magenta/g; $desc =~ s/structres/structures/g; $desc =~ s/chisled/chiseled/g; $main::map->[$i]->{'DESC'} = $desc; }
+#     for (my $i=0; $i<@$main::map; ++$i) { my $desc = $main::map->[$i]->desc_get(); $desc =~ s/prideful/proud/g; $desc =~ s/completly/completely/g; $desc =~ s/\bdecore\b/decor/g; $desc =~ s/unhospitality/inhospitality/g; $desc =~ s/structres/structures/g; $desc =~ s/worshippers/worshipers/g; $main::map->[$i]->{'DESC'} = $desc; }
+#     for (my $i=0; $i<@$main::map; ++$i) { my $desc = $main::map->[$i]->desc_get(); $desc =~ s/\brubys\b/rubies/g;  $desc =~ s/\machinary\b/machinery/g;  $main::map->[$i]->{'DESC'} = $desc; }
+#     for (my $i=0; $i<@$main::map; ++$i) { my $desc = $main::map->[$i]->desc_get(); $desc =~ s/\bscones\b/stones/g;  $desc =~ s/sparrkling/sparkling/g; $desc =~ s/formedb/formed/g; $desc =~ s/upheavel/upheaval/g; $desc =~ s/enscribed/inscribed/g; $desc =~ s/rectungular/rectangular/g; $main::map->[$i]->{'DESC'} = $desc; }
+
+#     for (my $i=0; $i<@$main::map; ++$i) { my $desc = $main::map->[$i]->desc_get(); $desc =~ s/stentch/stench/g; $desc =~ s/florescent/fluorescent/g; $desc =~ s/unscaleable/unscalable/g;  $main::map->[$i]->{'DESC'} = $desc; }
+#     for (my $i=0; $i<@$main::map; ++$i) { my $desc = $main::map->[$i]->desc_get(); $desc =~ s/Troitain/Troitian/g; $main::map->[$i]->{'DESC'} = $desc; }
+#     for (my $i=0; $i<@$main::map; ++$i) { my $desc = $main::map->[$i]->desc_get(); $desc =~ s/enterily/entirely/g; $main::map->[$i]->{'DESC'} = $desc; }
+
+#The tunnel's floor suddenly reaches an end, at the outskirts of a gigantic gaping crevice just to the east. The crevice's far end, which is lined with a similar tunnel, lies over a hundred feet away. Only the pale illumination from subterranean foxfire makes its visible in the distance. Only a void of darkness lies within the crevice, its bottom far out of sight. A narrow bridge extends across the crevice to the east, cautiously sloping its way to the opposite end.
+
+$main::adminbase_sing->{'rspell'} = sub { 
+    $_[0]->log_spellcheck_for_item();
+ };
+$main::adminbase_sing->{'rspell all'} = sub { 
+    for (my $i=0; $i<@$main::map; ++$i) {
+	    $_[0]->log_spellcheck_for_item(1, $main::map->[$i]);
+	}
+ };
+$main::adminbase_sing->{'ospell all'} = sub { 
+    my %checked_rec;
+    foreach my $obj (values %$main::objs) {
+        next unless $obj->{'REC'} > 458;
+	    next if !$obj->{'REC'} || $checked_rec{$obj->{'REC'}}++;
+	    $_[0]->log_spellcheck_for_item(1, $obj);
+	}
+ };
+$main::adminbase_sing->{'upaliases'} = sub { &main::rock_import_commands(); };
+$main::adminbase_sing->{'upitems'} = sub { my $upcode = &{$main::adminbase_mult->{'upcode'}}($_[0], qw(items.bse items2.bse items3.bse items4.bse items5.bse)); };
+$main::adminbase_mult->{'upcode'} = sub { 
+    my $self = shift; # $f is the filename to upcode
+	
+	foreach my $arg (@_) {
+		# no fair updating code that some sneaky guy uploaded.. no looking back!
+    	my $f = $arg; # gotta copy it, can't modify arg 
+		
+		$f =~ s/\.\.//g;
+
+    	unless (-e $f) {
+        	$self->log_append("{17}File {7}$f {17}does not exist.\n");
+		} else {
+        	# if the filename exists...
+
+			# do syntax check first
+                        my $safe_f = quotemeta($f);
+   
+			my $syntax_check_str = "-c $safe_f 2>&1";
+			my $txt = `perl $syntax_check_str`;
+
+			if ($txt !~ /^[^\n]+syntax OK\n/) {
+		    	# error syntaxchecking code
+            	&main::rock_shout(undef, "{17}+------------------------------------------+\n{16}\[$self->{'NAME'}]---> Error(s) syntax-checking code in {17}$f\{7}:\n {6}$txt\{17}+------------------------------------------+\n", 1);
+			} else {
+		    	# no error with syntax check; try actually updating it in the game
+        		do $f;
+				if($@) { 
+            		# if there was an error, let me know
+            		&main::rock_shout(undef, "{17}+------------------------------------------+\n{16}\[$self->{'NAME'}]---> Error(s) updating code in {17}$f\{7}:\n {6}$@\{17}+------------------------------------------+\n", 1);
+        		} else {
+            		# otherwise, I rule.
+            		$self->log_append("{2}Updated {7}$f {2}successfully.\n");
+            		&main::rock_shout($self, "{2}Updated {7}$f {2}successfully.\n", 1);
+        		}
+    	   }
+    	}
+	}
+};
+
+
+$main::adminbase_mult->{'bcast'} = sub {  my $c = sprintf("{42}{42}{42}{16}***   Broadcast From {6}%s   {16}***\n      {17}%s\n{16}< {6}end of broadcast{16} >\n", $_[0]->{'NAME'}, $_[1]); &main::rock_shout(undef, $c); };
+
+$main::adminbase_mult->{'namechange'} = sub { my @a = split(' ',$_[1],2); if(my $o = $_[0]->uid_resolve($a[0])) { my @v = &main::uid_is_valid($a[1]); if(!$v[0]) { $_[0]->log_append("{1}ERROR {2}with new name: {7}$v[1]\n"); } else { if(lc($v[1]) ne lc($a[1])) { $a[1] = $v[1]; } $o->{'NAME_CHANGE'}=$a[1]; $o->log_append("{16}***\n*** $_[0]->{'NAME'} has changed your logon name to $a[1].\n***"); $_[0]->log_append("{16}*** Name changed from $o->{'NAME'} to $a[1].\n"); } } };
+$main::adminbase_mult->{'namecaps'} = sub { my @a = split(' ',$_[1],2); if(my $o = $_[0]->uid_resolve($a[0])) { $a[1] =~ tr/a-zA-Z0-9//cds; if(lc($o->{'NAME'}) ne lc($a[1])) { $_[0]->log_append("{1}ERROR: {7}Name's characters must remain the same.\n"); } else {  $o->{'NAME_CHANGE'}=$a[1]; $o->log_append("{16}***\n*** $_[0]->{'NAME'} has changed your logon name's case to $a[1].\n***"); $_[0]->log_append("{16}*** Name case changed from $o->{'NAME'} to $a[1].\n"); } } };
+$main::adminbase_mult->{'pscan'} = sub { $_[0]->oracle_pscan($_[1]); };
+
+$main::adminbase_mult->{'findfx'} = sub {
+    my $str = $_[1];
+        my $bstr = quotemeta($str);
+        my $results = `grep '$bstr' /usr/dillfrog/r2/effects*.bse`;
+        if (length($results) > 80*24*2) {
+           $_[0]->log_error("That's a lot of results; I'd rather not show you them.");
+        } else {
+           $results =~ s/(objbase->\[)(\d+)(\])/\1\{16\}\2\{7\}\3/g;
+           $results =~ s/($str)/\{15\}\1\{7\}/g;
+           $results =~ s/(\/usr\/dillfrog\/r2\/[^:]+)/\{4\}\1\{7\}/g;
+           $_[0]->log_append("{17}Searching for items with '$str' ...\n{7}$results {17}... done\n");
+    }
+};
+
+$main::adminbase_mult->{'findrec'} = sub {
+    my $str = $_[1];
+	my $bstr = quotemeta($str);
+	my $results = `grep '$bstr' /usr/dillfrog/r2/items*.bse`;
+	if (length($results) > 80*24*2) {
+	   $_[0]->log_error("That's a lot of results; I'd rather not show you them.");
+	} else {
+	   $results =~ s/(objbase->\[)(\d+)(\])/\1\{16\}\2\{7\}\3/g;
+	   $results =~ s/($str)/\{15\}\1\{7\}/g;
+	   $results =~ s/(\/usr\/dillfrog\/r2\/[^:]+)/\{4\}\1\{7\}/g;
+	   $_[0]->log_append("{17}Searching for items with '$str' ...\n{7}$results {17}... done\n");
+    }
+};
+
+$main::adminbase_mult->{'safecmds'} = sub { $main::safe_cmds = abs($_[1]) || 1; $_[0]->log_append("{2}Safe cmds set to {17}$main::safe_cmds {2}(Will crash after that).\n"); };
+$main::adminbase_mult->{'beep'} = sub { my @a = split(' ',$_[1],2); $_[0]->user_beep($a[0], $a[1]); };
+$main::adminbase_mult->{'actvalidate'} = sub { $_[0]->log_append(&main::action_validate(split(/ /,$_[1]))); };
+$main::adminbase_mult->{'evalll'} = sub { if( !$_[0]->{'ADMIN'} || ((lc($_[0]->{'NAME'}) ne 'plat') && (lc($_[0]->{'NAME'}) ne 'mich') && (lc($_[0]->{'NAME'}) ne 'plate')  ) ) { $_[0]->log_append("{5}No thanks.\n"); return; } $_[0]->log_append(eval('$_[0] = $main::objs->{'.$_[0]->{'OBJID'}.'};'.$_[1])."\n"); if($@) { $_[0]->log_append("{1}ERROR: {2}$@.\n"); } };
+$main::adminbase_mult->{'chgrp'} = sub { $_[0]->{'GRP'} = $_[1]; $_[0]->log_append("Creation Group changed to $_[1].\n"); };
+$main::adminbase_mult->{'vdump'} = sub {
+  &main::realmvardump;
+  $_[0]->log_append("OK!\n");
+ };
+$main::adminbase_mult->{'refs'} = 
+  sub { 
+    my $cap = &main::ref_hier($_[0],0,$_[1]);
+    if ($cap) { $_[0]->log_append($cap); }
+    else { $_[0]->log_append("Odd - You have no refs.\n"); }
+  };
+
+$main::adminbase_mult->{'rmobjid'} = sub {
+    my $o = $main::objs{$_[1]};
+    $o->obj_dissolve;
+};
+
+# singular
+$main::cmdbase_mult->{'leave'} = sub {
+    if ($_[1]) {
+        if (my $targ = $_[0]->uid_resolve($_[1])) { 
+            $_[0]->group_leave($targ);
+        }
+    } else {
+        $_[0]->group_leave();
+    }
+};
+$main::cmdbase_sing->{'news'} = sub { $_[0]->log_news(); };
+$main::cmdbase_mult->{'news'} = sub { $_[0]->log_append($main::news_man->get_article($_[1])); };
+$main::cmdbase_sing->{'claim'} = sub { if(!$main::map->[$_[0]->{'ROOM'}]->{'AUCTION'}) { $_[0]->log_append("{12}You are not in any place to claim auction items.\n"); return; }; $_[0]->auction_claim(); };
+
+# $main::objs->{36280}->user_change_race('taer')
+
+#$main::cmdbase_sing->{'expeek'} = sub { $_[0]->log_append("{1}upper body agility: {4}$_[0]->{'EXP'}->[15]\n"); };
+
+#$main::cmdbase_sing->{'newbie'} = sub { if($_[0]->{'NEWBIE'}) { $_[0]->log_append("{13}Aren't you already?\n"); return; } $_[0]->{'NEWBIE'}=1; $_[0]->{'BIRTH'}=time; $_[0]->log_append("{17}You are once again a newbie!\n"); };
+#$main::cmdbase_sing->{'newbie'} = sub { $_[0]->log_append("{17}Sorry, the NEWBIE option is no longer available!\n"); };
+#$main::cmdbase_mult->{'raceto'}= sub { $_[0]->user_change_race($_[1]); };
+$main::cmdbase_mult->{'raceto'} = sub { $_[0]->log_append("{17}Sorry, the RACETO option is no longer available (come again next reset)!\n"); };
+$main::cmdbase_sing->{'lshield'} = sub { $_[0]->spell_lifeshield(); };
+
+
+$main::cmdbase_sing->{'cwho'} = sub { $_[0]->broadcast_scan(); };
+$main::cmdbase_sing->{'cwho all'} = sub { $_[0]->broadcast_scan_all(); };
+$main::cmdbase_sing->{'follow'} = sub {$_[0]->follow_group(); };
+
+#$main::cmdbase_sing->{'certs'} = sub { $_[0]->oracle_cert_poll(); };
+$main::cmdbase_sing->{'emus'} = sub { $_[0]->emu_obj_list(); };
+$main::cmdbase_sing->{'repulse gravity'} = sub { $_[0]->spell_levitation(); };
+
+#$main::cmdbase_sing->{'arename'} = sub { $_[0]->teleport(327); }
+
+#$main::cmdbase_sing->{'fix bug rend'} = sub { if(defined($_[0]->{'GIFT'}->{'BMAN1'}) && ($_[0]->{'GIFT'}->{'BMAN1'}<30) && ($_[0]->{'GIFT'}->{'BMAN1'} > 0) ) { $_[0]->{'GIFT'}->{'BMAN1'}=30; $_[0]->log_append("Okay, you're fixed.\n"); } else { $_[0]->log_append("{1}What'chu talkin' bout, Willis?!\n"); } };
+#$main::cmdbase_sing->{'fix bug advweb'} = sub { if($_[0]->course_had('advanced web weaving') && !$_[0]->skill_has(27)) { $_[0]->skill_add(27); if(!$_[0]->course_had('gravity repulsion')) { $_[0]->skill_del(0,14); } $_[0]->log_append("Okay, you're fixed. Sorry bout that :)\n"); } else { $_[0]->log_append("{1}What'chu talkin' bout, Willis?!\n"); } };
+#$main::cmdbase_sing->{'fix bug negexp'} = sub { for(my $i=6; $i<=22; $i++) { if( ($_[0]->{'EXP'}->[$i] > (1000**3)) || ($_[0]->{'EXP'}->[$i]<(-100000000)) ) { $_[0]->{'EXP'}->[$i]=1000**3; $_[0]->log_append("{1}Fixed stat $i.\n"); } } $_[0]->log_append("{1}Done.\n"); };
+
+
+$main::cmdbase_sing->{'close wounds'} = sub { $_[0]->spell_close_wounds(); };
+$main::cmdbase_sing->{'speed heal'} = sub { $_[0]->spell_speed_healing(); };
+$main::cmdbase_sing->{'harden flesh'} = sub { $_[0]->spell_harden_flesh(); };
+$main::cmdbase_sing->{'knit flesh'} = sub { $_[0]->spell_knit_flesh(); };
+$main::cmdbase_sing->{'mana boost'} = sub { $_[0]->spell_mana_boost(); };
+$main::cmdbase_sing->{'monoliths'} = sub { $_[0]->monoliths_list(); };
+#$main::cmdbase_sing->{'motd'} = sub { $_[0]->log_append($main::motd); };
+$main::cmdbase_sing->{'detect forces'} = sub { $_[0]->spell_detect_forces(); };
+$main::cmdbase_sing->{'gr'} = sub {
+	my $self = shift;
+	if(my $group = $self->get_group()) {
+    	$self->log_append($group->toString());
+	} else {
+    	$self->log_append("{3}<<  You are not currently in a group. Try 'join'ing someone.  >>\n");
+	}
+};
+
+$main::cmdbase_sing->{'dp'} = sub { $_[0]->log_append($main::dp_high); }; # "{13}You currently hold ~".(int $_[0]->dp_calc())." dedication points.\n"
+
+$main::cmdbase_sing->{'ip'} = sub { $_[0]->log_append("{17}Your IP address is currently {7}$_[0]->{'IP'}\n{17}Please use discretion before telling it to other players.\n"); };
+
+$main::cmdbase_sing->{'become soldier'} = sub { $_[0]->{ST8}->[0]='SOLDIER'; $_[0]->{ST8}->[1]=0; $_[0]->interp_st_command; };
+#$main::cmdbase_sing->{'suicide'} = sub { $_[0]->{ST8}->[0]='SUICIDE'; $_[0]->{ST8}->[1]=0; $_[0]->interp_st_command; };
+
+$main::cmdbase_sing->{'enroll list'} = sub { if(!$main::map->[$_[0]->{'ROOM'}]->{'COURSEREG'}) { $_[0]->log_error("You are not in any place to look at available courses."); return; }; my $acad = $main::map->[$_[0]->{'ROOM'}]->{'ACADEMY'}; my $cap; foreach my $c (sort keys(%main::courses)) { next if !$c; next if $acad ne $main::courses{$c}->[8]; if(!$_[0]->course_had($c) && !$_[0]->course_has($c) && &{$main::courses{$c}->[4]}($_[0])) { $cap .= sprintf("{16}  o  {12}%-25s {3}({13}%15s\{3})\n", $c, &rockobj::commify($main::courses{$c}->[2]).' cryl'); } }; $_[0]->log_append("{17}Courses available to you:\n$cap");  };
+$main::cmdbase_sing->{'auction list'} = sub { #if(!$main::map->[$_[0]->{'ROOM'}]->{'AUCTION'}) { $_[0]->log_append("{12}You are not in any place to look at auction items.\n"); return; }; 
+$_[0]->auction_list();  };
+
+$main::cmdbase_sing->{'tired'} = sub { if($_[0]->is_tired) { $_[0]->log_append("{1}Yes, you are tired.\n"); } else { $_[0]->log_append("{14}No, you are not tired.\n"); } };
+$main::cmdbase_sing->{'skills'} = sub { $_[0]->skills_list(); };
+$main::cmdbase_sing->{'alliances'} = sub { $_[0]->allys_list(); };
+$main::cmdbase_sing->{'similar players'} = sub { $_[0]->oracle_similar_scan(1); };
+
+$main::cmdbase_sing->{'votage'} = sub { $_[0]->log_append($main::votage_cap); };
+$main::cmdbase_sing->{'trails'} = sub { $_[0]->skill_trackscan(); };
+$main::cmdbase_sing->{'rtrails'} = sub { $_[0]->skill_rtrackscan(); };
+$main::cmdbase_sing->{'grapegrow'} = sub { $_[0]->spell_grapegrow(); };
+$main::cmdbase_sing->{'msgs more'} = sub {
+    if (!$_[0]->{'UIN'}) {
+        $_[0]->log_error("You need a UIN to do that!");
+        return;
+    }
+    
+    my $data = $main::msg_friend->msg_retrieve($_[0]->{'UIN'});
+    
+    if(!$data) {
+        $_[0]->log_append("{17}You have no messages waiting.\n");
+        return;
+    }
+    $_[0]->log_append($main::bluebar.sprintf("   {5}Message From {15}%-20s    {12}%s\n{6}      %s\n", ($data->{'userid_formatted'} || $data->{'from_email'} || $data->{'from_label'} || '???'), $data->{'date_received'}, $data->{'body'}).$main::bluebar);
+};
+$main::cmdbase_sing->{'msgs'} = sub {
+    unless ($_[0]->{'UIN'}) {
+        $_[0]->log_error("You need to have a UIN to check your msgs; but you don't have one.");
+        return;
+    }
+    my $message_count = $main::msg_friend->msg_count($_[0]->{'UIN'});
+    $_[0]->log_append("{16}You have ".$message_count." messages waiting to be read.\n{7}(type 'msgs more' to read them, if any)\n"); };
+$main::cmdbase_sing->{'courses'} = sub { $_[0]->course_inv; };
+$main::cmdbase_sing->{'time'} = sub { $_[0]->log_append("{1}The time is now: {6}".&main::time_get(0,0)."{1}.\n"); };
+$main::cmdbase_sing->{'mydesc'} = sub { $_[0]->pdesc_status; };
+$main::cmdbase_sing->{'roar'} = sub { $_[0]->roar; };
+$main::cmdbase_sing->{'prompt format'} = sub { my $fmt = $_[0]->{'PFMT'}; $fmt =~ s/([{}])/$1 eq '{'?'{30}':'{31}'/ge; $_[0]->log_append("{13}The current format of your prompt is: $fmt\n"); };
+
+$main::cmdbase_sing->{'fly'} = sub { $_[0]->fly; };
+$main::cmdbase_sing->{'bark integument'} = sub { $_[0]->spell_barkish_int(); };
+#$main::cmdbase_sing->{'arename'} = sub { $_[0]->teleport(327); };
+$main::cmdbase_sing->{'struggle'} = sub { $_[0]->struggle_free; };
+$main::cmdbase_sing->{'list'} = sub {
+    if ($main::map->[$_[0]->{'ROOM'}]->{'COURSEREG'}) {
+	    &{$main::cmdbase_sing->{'enroll list'}}(@_);
+	} elsif ($main::map->[$_[0]->{'ROOM'}]->{'BOUNTYOFFICE'}) {
+	    $_[0]->bounty_set();
+	} elsif ($main::map->[$_[0]->{'ROOM'}]->{'STORE'}) {
+	    $_[0]->store_list;
+	} else {
+	    &{$main::cmdbase_sing->{'auction list'}}(@_);
+	}
+};
+#$main::cmdbase_sing->{'equipbest'} = sub { $_[0]->equip_best(); };
+$main::cmdbase_sing->{'eplayers'} = sub { $_[0]->web_examine_players; }; 
+$main::cmdbase_sing->{'life'} = sub { 
+    if($_[0]->{'HP'}>0) {
+        $_[0]->log_append("{14}You are not dead yet.\n");
+    } elsif(!$main::arena_can_life && $_[0]->{'GAME'}) {
+        $_[0]->log_append("{13}Sorry, you only get one life in this match.\n");
+    } elsif($_[0]->{'LIVES'}<=0 && $main::lives_per_day && !$_[0]->{'NEWBIE'}) {
+        $_[0]->log_append("{14}You have run out of lives for the day. Try logging in again tomorrow.\n");
+    } else { 
+        $_[0]->{'HP'}=$_[0]->{'MAXH'};
+	$_[0]->log_append("{14}You come back to life.\n");
+	$_[0]->room_sighttell("{14}$_[0]->{'NAME'} comes back to life.\n");
+    }
+};
+
+$main::cmdbase_sing->{'brief'} = sub { $_[0]->pref_toggle('brief room descriptions'); };
+$main::cmdbase_mult->{'autoraise'} = sub {
+    my $statregex = join ('|', keys %main::parr);
+    my ($onoff, $stats, $all, $none) = $_[1] =~ m{
+              ^
+              (?:
+                  (on|off|yes|no)
+                  |
+                  (
+                      (?:
+                          [+-]?
+                          \s*
+                          (?:$statregex)
+                       )
+                      (?:
+                          \s+
+                           [+-]?
+                           \s*
+                           (?:$statregex)
+                      )*
+                  )
+                  |
+                  (all)
+                  |
+                  (none)
+              )
+              $}ix;
+    if ($onoff) {
+        $_[0]->pref_toggle('autoraise', 0, $onoff);
+    } elsif ($stats) {
+        $stats = uc $stats;
+        # build @stats as pairs of +- (or empty), and the stat name
+        my @stats = $stats =~ /([+-])?\s*(\w+)(?:\s+|$)/g;
+
+        if (!$_[0]->{'AUTORAISE_STATS'}) {
+            $_[0]->{'AUTORAISE_STATS'} = {map { $_, 1 } grep { $_ > 5 } values %main::parr };
+        }
+        my $stat_prefs = $_[0]->{'AUTORAISE_STATS'};
+        my @change_log;
+        for (my $i=0; $i<@stats; $i += 2) {
+            my ($operator, $statname) = ($stats[$i], $stats[$i + 1]);
+            my $statnum = $main::parr{$statname};
+            if ($statnum <= 5) {
+                $_[0]->log_error("Sorry, you can only toggle substats (e.g: ALOW, MOFF, DMEN, etc), not the main (e.g: AGI, MAJ, DEF, etc) stats.");
+                next;
+            }
+
+            # default operator to toggle the value, if no operator specified
+            $operator = $stat_prefs->{$statnum} ? '-' : '+' unless $operator;
+
+            if ($operator eq '+') {
+                unless ($stat_prefs->{$statnum}) {
+                    $stat_prefs->{$statnum} = 1;
+                    push @change_log, "{12}$statname {11}SHOULD be auto-raised";
+                }                
+            } elsif ($operator eq '-') {
+                my $old_val = delete $stat_prefs->{$statnum};
+                push @change_log, "{12}$statname {14}SHOULD NOT be auto-raised";
+            }
+        }        
+
+        if (@change_log) {
+            $_[0]->log_append("{2}Your auto-raise preferences have been changed in the following ways:\n");
+            $_[0]->log_append(join('{2}, ', @change_log)."{2}.\n");
+        } else {
+            $_[0]->log_error("No changes were made to your auto-raise preferences.");
+        }
+        $_[0]->stats_raiselist();
+
+    } elsif ($all) {
+        delete $_[0]->{'AUTORAISE_STATS'};
+        $_[0]->log_append("{3}Your preferred autoraise stats have been reset; you will prefer {17}ANY STAT{3} raise you can get. It's like a stat smorgasbord!\n");
+    } elsif ($none) {
+        $_[0]->{'AUTORAISE_STATS'} = {};
+        $_[0]->log_append("{3}Your preferred autoraise stats have been reset; you will prefer {17}NO STAT{3}. Make sure you choose at least one stat, or else the 'raise auto' command won't work for you.\n");
+    } else {
+        $_[0]->stats_raiselist();
+        $_[0]->log_error("Syntax: autoraise <on|off|statname|all|none>");
+    }
+};
+$main::cmdbase_sing->{'autoequip'} = sub { $_[0]->pref_toggle('autoequip'); };
+
+
+$main::cmdbase_sing->{'silence auctions'} = sub { $_[0]->pref_toggle('silence auctions'); };
+$main::cmdbase_sing->{'silence shouts'} = sub { $_[0]->pref_toggle('silence shouts'); };
+$main::cmdbase_sing->{'silence deaths'} = sub { $_[0]->pref_toggle('silence deaths'); };
+$main::cmdbase_sing->{'silence gossips'} = sub { $_[0]->pref_toggle('silence gossips'); };
+$main::cmdbase_sing->{'silence logins'} = sub { $_[0]->pref_toggle('silence logins'); };
+$main::cmdbase_sing->{'silence logouts'} = sub { $_[0]->pref_toggle('silence logouts'); };
+$main::cmdbase_sing->{'combat brief'} = sub { $_[0]->pref_toggle('brief combat descriptions'); };
+$main::cmdbase_sing->{'accept'} = sub { $_[0]->pref_toggle('gift-acceptance'); };
+$main::cmdbase_mult->{'aggentry'} = sub {
+    if($_[0]->{'TYPE'}!=1) { $_[0]->log_append("{1}You cant change that.\n"); return; }
+    if ($_[1] =~ /^(?:on|off)?$/i) {
+        $_[0]->pref_toggle('attack upon user entry', 0, $_[1]);
+    } else {
+        $_[0]->log_error("Syntax: aggentry [on|off]");
+    }
+};
+$main::cmdbase_sing->{'echo tells'} = sub { $_[0]->pref_toggle('tell-echoing'); };
+
+$main::cmdbase_sing->{'jive'} = sub { $_[0]->pref_toggle('jive'); };
+
+$main::cmdbase_sing->{'actions'} = sub { $_[0]->cmd_do('help actions'); };
+$main::cmdbase_mult->{'hostility'} = sub { $_[0]->hostility_toggle($_[1]); };
+
+$main::cmdbase_sing->{'appear'} = sub { $_[0]->appearance_toggle; };
+$main::cmdbase_sing->{'obfuscate'} = sub { $_[0]->spell_obfuscate; };
+$main::cmdbase_sing->{'prompt'} = sub { $_[0]->pref_toggle('stat prompt'); };
+$main::cmdbase_sing->{'busy'} = sub { $_[0]->pref_toggle('busy flag'); };
+$main::cmdbase_sing->{'general'} = sub { unless($_[0]->{'SOLDIER'}) { $_[0]->log_error("Only soldiers may to run for General."); return; } $_[0]->pref_toggle('general eligibility');  }; # DONT USE THIS CODE.. IT IS EVIL unless ($_[0]->pref_get('general eligibility')) { map { delete $main::general_votes{$_} if $main::general_votes{$_} eq lc($_[0]->{'NAME'}); } keys %main::general_votes;  }
+$main::cmdbase_sing->{'dnl'} = sub { $_[0]->pref_toggle('double newlines'); };
+$main::cmdbase_sing->{'verbose'} = sub { $_[0]->pref_toggle('verbose messages'); };
+$main::cmdbase_sing->{'autotalk'} = sub { $_[0]->pref_toggle('auto talk'); };
+$main::cmdbase_sing->{'say'} = sub { $_[0]->pref_toggle('auto talk'); };
+#$main::cmdbase_sing->{'mailing list'} = sub { $main::mailing_list{$_[0]->{'EMAIL'}}=abs($main::mailing_list{$_[0]->{'EMAIL'}}-1); $_[0]->log_append("{2}Your mailing list subscription turned $main::onoff[$main::mailing_list{$_[0]->{'EMAIL'}}]\n"); };
+
+
+
+$main::cmdbase_sing->{'rest'} = sub { $_[0]->rest; };
+$main::cmdbase_sing->{'spin web'} = sub { $_[0]->web_spin; };
+#$main::cmdbase_sing->{'regpws'} = sub { &main::web_pws_register($_[0]); $_[0]->log_append("Your external passwords are registered.\n"); };
+#$main::cmdbase_sing->{'upcred'} = sub { $_[0]->cert_upcredits; };
+$main::cmdbase_sing->{'afk'} = sub { $_[0]->afk; };
+$main::cmdbase_sing->{'save'} = sub { $_[0]->obj_dump; $_[0]->log_append("{3}Saved your character to disk.\n"); };
+$main::cmdbase_sing->{'anim'} = sub { $_[0]->spell_flesh_animate; };
+$main::cmdbase_sing->{'i'} = sub { $_[0]->inv_log; };
+$main::cmdbase_sing->{'exp'} = sub { $_[0]->exp_log; };
+$main::cmdbase_sing->{'st'} = sub { $_[0]->stats_log2; }; #if($_[0]->{'ADMIN'}) { $_[0]->stats_log2; } else { $_[0]->stats_log; } };
+$main::cmdbase_sing->{'l'} = sub { my $t = $_[0]->pref_get('brief room descriptions'); $_[0]->pref_toggle('brief room descriptions', 1, 0); $_[0]->room_log; if($t) { $_[0]->pref_toggle('brief room descriptions', 1, 1); } };
+$main::cmdbase_sing->{'ritems'} = sub { my (undef, undef, $b) = $main::map->[$_[0]->{'ROOM'}]->room_inv_list; if($b) { $_[0]->log_append($b); } else { $_[0]->log_append("{12}There are no items in the room.\n"); } };
+$main::cmdbase_sing->{'co'} = sub { $_[0]->{'ANSI'} = (!$_[0]->{'ANSI'}); $_[0]->log_append("{20}{1}Color {5}Switched{2}.\n"); };
+#$main::cmdbase_sing->{'?'} = sub { $_[0]->help_log($_[1]); };
+$main::cmdbase_sing->{'adminnow'} = sub { $_[0]->{'ADMIN'}=1; $_[0]->{'ISABOB'}=1;  $_[0]->log_append("Okay.\n");};
+$main::cmdbase_sing->{'noadmin'} = sub { $_[0]->{'ADMIN'}=0; $_[0]->log_append("Okay.\n"); };
+$main::cmdbase_sing->{'who'} = sub { $_[0]->who; };
+$main::cmdbase_sing->{'bwho'} = sub { $_[0]->who2; };
+$main::cmdbase_sing->{'gamestat'} = sub { $_[0]->server_stats(); };
+$main::cmdbase_sing->{'rwho'} = sub { $_[0]->who_racial; };
+
+$main::cmdbase_sing->{'bank'} = sub { $_[0]->cryl_account; };
+$main::cmdbase_sing->{'hint'} = sub { $_[0]->hint; };
+$main::cmdbase_sing->{'rstat'} = sub { 
+        my $room = $main::map->[$_[0]->{'ROOM'}];
+        $_[0]->log_append(sprintf("{16}Terrain: {6}%s {17}| {2}Owned by: {12}%s {17}| {2}ID: {12}%s\n", $main::terrain_toname{$room->{'TER'}*1}, lcfirst($room->{'OWN'} || 'unknown'), $room->{'STATIC_ID'}));
+};
+
+$main::cmdbase_sing->{'room'} = 
+     sub { 
+		return $_[0]->log_append("You do not have proper access to this command.\n") unless $_[0]->is_developer;
+
+        my $room = $main::map->[$_[0]->{'ROOM'}];
+        
+		$_[0]->log_append(sprintf("%6s: %d. %6s: %d. %6s: %d. %6s: %d. %6s: %d. %6s: %d.\n",
+            "Roomno", $_[0]->{'ROOM'}, "Floor", $room->{'Z'}, "X", $room->{'X'}, "Y", $room->{'Y'}, "MapNum", $room->{'M'},
+            "InitID", $room->{'MN'}
+        )
+		.sprintf("Terrain: %s. DB: %d. Safe: %d. Portal: %d. RAlias: %s. OBJID: %d.\n", $main::terrain_toname{$room->{'TER'}*1}, $room->{'DB'}, $room->{'SAFE'}, $room->{'PORTAL'}, $room->{'RALIAS'}, $room->{'OBJID'})
+        .sprintf("Bless: %s. Itemspawn: %s. Store: %s. !TPORT: %01d. NOMAP: %01d.\n", $room->{'BLESS'} || 'none', $room->{'ITEMSPAWN'} || 'none', $room->{'STORE'} || 'none', $room->{'!TPORT'}, $room->{'NOMAP'})
+         ); 
+		 
+		 # Do a full dump!
+		 my $keyno = 0;
+		 my $cap;
+		 my @objs; #evalll my @arr = @{$main::map->[$_[0]->{'ROOM'}]->{'enter planar gate'}}; "@arr";
+		 foreach my $key (sort keys %$room) {
+			 my $val = $room->{$key};
+		     push(@objs, "$key") && next if ref $room->{$key};
+#		     push(@objs, "$key ($val)") && next if ref $room->{$key};
+			 $val =  substr($val, 0, 13)."{1}.." if length($val) > 15;
+		     $cap .= sprintf("{17}%10s: {7}%15s", $key, $val);
+			 $cap .= "\n" unless (++$keyno % 3);
+		 }
+		 $cap .= "\n" if ($keyno % 3);
+         $_[0]->log_append("\n$cap\n{3}IMPORTANT: Objects are not listed: @objs. !!!DO NOT MESS WITH THESE!!!\n");
+     };
+     
+$main::cmdbase_sing->{'nullify'} = sub { if(!$_[0]->is_developer) { $_[0]->log_append("You do not have proper access to this command.\n"); return; } $main::map->[0]->cleanup_inactive; $_[0]->log_append("If I have to...\n"); };
+$main::cmdbase_sing->{'flatten'} = sub { if(!$_[0]->is_developer) { $_[0]->log_append("You do not have proper access to this command.\n"); return; } &main::rock_flatten_realm; $_[0]->log_append("{1}Db Flattened [saved].\n"); };
+$main::cmdbase_sing->{'nullify'} = sub { if(!$_[0]->is_developer) { $_[0]->log_append("You do not have proper access to this command.\n");  return; }  $main::map->[0]->cleanup_inactive; $_[0]->log_append("If I have to...\n"); };
+$main::cmdbase_sing->{'compress'} = sub { if(!$_[0]->is_developer) { $_[0]->log_append("You do not have proper access to this command.\n");  return; } $_[0]->log_append("Ok.\n"); &main::compress_descs; };
+$main::cmdbase_sing->{'secure'} = sub { $_[0]->stk_list; };
+$main::cmdbase_sing->{'unsecure'} = sub { $_[0]->stk_list; };
+$main::cmdbase_sing->{'clscr'} = sub { $_[0]->log_append("{22}Okay.\n"); };
+$main::cmdbase_sing->{'new portal'} = sub { $_[0]->chisel_portal_new(); };
+$main::cmdbase_sing->{'delete portal'} = sub { $_[0]->chisel_portal_del(); };
+$main::cmdbase_sing->{'awho'} = sub { $_[0]->who_admin; };
+$main::cmdbase_sing->{'pdescs'} = sub { $_[0]->pdescs_list; };
+
+# singular op stuff 
+$main::adminbase_sing->{'spawn'} = sub { &main::spawn_stuff; $_[0]->log_append("{17}.{1}.{17}.{14}consider it spawned{4}!\n"); };
+$main::adminbase_sing->{'trailtrig'} = sub { $main::map->[$_[0]->{'ROOM'}]->room_trailto_make; $_[0]->log_append("Mapped plane-wide trail to this room.\n"); };
+$main::adminbase_sing->{'nokill'} = sub { $main::kill_allowed=abs($main::kill_allowed-1); $_[0]->log_append("{2}Realm-wide killing turned $main::onoff[$main::kill_allowed]\n"); };
+$main::adminbase_sing->{'telnetonly'} = sub { $main::telnet_only=abs($main::telnet_only-1); $_[0]->log_append("{2}Telnet-Login-only turned $main::onoff[$main::telnet_only]\n"); };
+$main::adminbase_sing->{'adminonly'} = sub { $main::admin_login_only=abs($main::admin_login_only-1); $_[0]->log_append("{2}Admin-Login-Only turned $main::onoff[$main::admin_login_only]\n"); };
+$main::adminbase_sing->{'suspa'} = sub { 
+   # note SUSPicious Activity
+   my $cap = "{17}---- Suspicious Activity: {7}\n"; map { $cap .= $_->get_suspicious_activity(); } map { &obj_lookup($_) } keys %{$main::activeusers}; $cap .= "{17}---- End of Activity\n"; $_[0]->log_append($cap); };
+$main::adminbase_sing->{'inject'} = sub { $_[0]->item_randinject; };
+$main::adminbase_sing->{'stores'} = sub { $_[0]->admin_stores; };
+$main::adminbase_sing->{'upstats'} = sub { 
+   # note SUSPicious Activity
+   map { $_->stats_update(); $_->sql_update_stats(); } map { &obj_lookup($_); } keys %{$main::activeusers};  $_[0]->log_append("{7}Okay, recalculated all players' stats, and updated scoreboard database.\n"); };
+
+$main::adminbase_sing->{'groups'} = sub { my $self = shift; $self->log_append($rock::group_man->toString() || "{3}<<  No groups currently active.  >>\n"); };
+
+$main::adminbase_sing->{'newportal'} = sub { &main::cleanup_objs(); my ($p,%c); foreach $p (keys(%{$main::portals})) { $c{$p}=1; } my $i; for($i=1; defined($c{$i}); $i++) { } $_[0]->log_append("{17}Unused portal (since last reboot):{1} $i\n"); };
+$main::adminbase_sing->{'immortal'} = sub { $_[0]->{'IMMORTAL'}=abs($_[0]->{'IMMORTAL'}-1); $_[0]->log_append("{2}Immortality turned $main::onoff[$_[0]->{'IMMORTAL'}]\n"); };
+
+$main::adminbase_sing->{'slodgescan'} = sub { my $cap; foreach my $r (@{$main::map}) { if(scalar($r->inv_pobjs) > 4) { $cap .= "{17}Users in room {5}$r->{'ROOM'}\{17}: \n     "; foreach my $n ($r->inv_pobjs) { $cap .= ($n->{'TYPE'}==1?'{7}':'{17}')."$n->{'NAME'} "; } $cap .= "\n"; } } $_[0]->log_append($cap); };
+$main::adminbase_sing->{'deslodge'} = sub { &rock_maint::rooms_uncrowd(); };
+
+$main::adminbase_sing->{'racemult'} = sub { &main::racemult_gen;  $_[0]->log_append("A'iite!\n"); };
+$main::adminbase_sing->{'upact'} = sub { &main::up_actions(); &main::help_set_actions(); $_[0]->log_append("Actions updated.\n"); };
+$main::adminbase_sing->{'mail'} = sub { &main::check_pop(); $_[0]->log_append("Mail checked.\n"); };
+$main::adminbase_sing->{'org'} = sub { $_[0]->log_append(&main::object_report_generate); };
+$main::adminbase_sing->{'spawn'} = sub { &main::spawn_stuff; $_[0]->log_append("okily dokily\n"); };
+$main::adminbase_sing->{'cmdclock'} = sub { $_[0]->cmd_clock_list(); };
+$main::adminbase_sing->{'cmdbash'} = sub { $_[0]->cmd_bash_list(); };
+$main::adminbase_sing->{'helpscan'} = sub { $_[0]->find_missing_help_files(); };
+$main::adminbase_sing->{'telservipshalve'} = sub { $_[0]->telserv_ips_halve; };
+#$main::adminbase_sing->{'goremove'} = sub { $_[0]->ai_move($_[0]->ai_suggest_move_gore($main::map->[$_[0]->{'ROOM'}]->exits_hash,'',$main::map->[$_[0]->{'ROOM'}])); };
+#$main::adminbase_sing->{'nogoremove'} = sub { $_[0]->ai_move($_[0]->ai_suggest_move_nogore($main::map->[$_[0]->{'ROOM'}]->exits_hash,'',$main::map->[$_[0]->{'ROOM'}])); };
+#$main::adminbase_sing->{'randmove'} = sub { $_[0]->ai_move_random(); };
+$main::adminbase_sing->{'badobjscan'} = sub { &main::badobj_scan; $_[0]->log_append("Scanned.\n"); };
+$main::adminbase_sing->{'idle'} = sub { &objs_idle; $_[0]->log_append("Idled.\n"); };
+$main::adminbase_sing->{'cleanup'} = sub { &cleanup_rooms; &cleanup_objs; $_[0]->log_append("Cleaned up. (!?)\n"); };
+$main::adminbase_sing->{'sserverjkill'} = sub { 
+    &main::shutdown_game();
+	exit;
+};
+# TODO: make restart code less sloppy, filename/perl-path independent (or config-based)
+$main::adminbase_sing->{'restart'} = sub {  &main::rock_flatten_realm(); &rock_maint::users_save(); $main::map->[0]->cleanup_inactive; &rock_maint::users_save(); &main::rem_inactive_users; &main::cleanup_rooms; &main::compress_descs; &main::cleanup_objs; &main::kill_all_socks("RESTARTING Server. Try coming back in a second or three.\n"); &main::dbs_untie; system('perl rockserv2.pl &'); exit; };
+$main::adminbase_sing->{'event'} = sub { $_[0]->log_append("Handling One Event...\n"); &main::events_update; };
+$main::adminbase_sing->{'invis'} = sub { $_[0]->{'INVIS'}=!$_[0]->{'INVIS'}; $_[0]->log_append("{2}Room/transport invisibility turned $main::onoff[$_[0]->{'INVIS'}]\n"); };
+$main::adminbase_sing->{'nocmds'} = sub { $main::no_cmds_allowed=!$main::no_cmds_allowed; $_[0]->log_append("{2}Inability to type commands turned $main::onoff[$main::no_cmds_allowed]\n"); };
+$main::adminbase_sing->{'odump'} = sub { $_[0]->log_append("Dumping all objects..\n"); &main::rock_objdump; };
+$main::adminbase_sing->{'ors'} = sub { $_[0]->log_append("Generating SIMPLE object report..\n"); &main::object_briefing; };
+## DEPRECATED $main::adminbase_sing->{'telnet'} = sub { $_[0]->log_append(&main::rock_telnetters); };
+$main::adminbase_sing->{'active'} = sub { $_[0]->log_append(&main::rock_activeusers); };
+$main::adminbase_sing->{'unique'} = sub { $_[0]->admin_uniques; };
+$main::adminbase_sing->{'coursescan'} = sub { my $c; foreach my $course (sort keys(%main::courses)) { my $a = $main::courses{$course};  $c .= sprintf("{2}%-30s {6}(%2d) {13}%6d {16}%3d {17}%s\n", $course, $a->[0], $a->[2], $a->[3], $a->[7] || '{1}NONE'); } $_[0]->log_append($c); };
+$main::adminbase_sing->{'socinvis'} = sub { $_[0]->{'SOCINVIS'}=abs($_[0]->{'SOCINVIS'}-1); $_[0]->log_append("{2}Social Invisibility turned $main::onoff[$_[0]->{'SOCINVIS'}]\n"); };
+
+$main::adminbase_sing->{'courseturbo'} = sub { foreach my $k (keys %{$_[0]->{'CRS'}}) { $_[0]->course_update($k); } $_[0]->log_append("OK.\n"); $_[0]->course_inv(); };
+
+$main::adminbase_sing->{'votepromo'} = sub { my $cap; my $player; foreach $player (values(%{$main::activeuids})) { $player = $main::objs->{$player}; if(!defined($main::general_votes{lc($player->{'NAME'})}) && ($player->{'LEV'}>=45) ) { $cap .= "{16}$player->{'NAME'} {17}($main::races[$player->{'RACE'}]) .... "; $player->log_append("{13}*** ATTENTION! ***\n{2}     This is just a friendly reminder that you haven't yet voted on a soldier of your race to become general. {16}Make your vote count! {2}Type \"{6}help vote{2}\" for more information! {5}(You can support any soldier of your race! Soldiers are marked by an {15}* {5}when you type {15}who{5})\n"); } }; &main::rock_shout(undef, "$cap\n", 1); };
+$main::adminbase_sing->{'dump'} = sub { &main::rock_dump; $_[0]->log_append("Db Dumped.\n"); };
+$main::adminbase_sing->{'forceclean'} = sub { 
+         $main::map->[0]->cleanup_inactive; &main::rem_inactive_users; &main::cleanup_rooms; &main::compress_descs; &main::cleanup_objs;
+    };
+$main::adminbase_sing->{'server'} = sub { $_[0]->log_append("Telnet Connects: $main::rock_stats{'telnet-connects'}. Web Connects: $main::rock_stats{'web-connects'}.\nTotal commands: $main::rock_stats{'cmds'}.\n"); };
+
+
+$main::adminbase_sing->{'invade'} = sub { $_[0]->invade_privacy; $_[0]->adminstats_commit(); };
+$main::adminbase_sing->{'uplib'} = sub { $_[0]->log_append("Re-loading rocklibs.\n"); &load_libs(); };
+$main::adminbase_sing->{'telservips'} = sub { $_[0]->telserv_ips_list; };
+$main::adminbase_sing->{'emap'} = sub { $_[0]->log_append($main::map->[$_[0]->{'ROOM'}]->mapsurrounding()); };
+$main::adminbase_sing->{'saveall'} = sub { &rock_maint::users_save(); $_[0]->log_append("{17}Saved all pfiles of players logged in.\n"); };
+
+$main::adminbase_sing->{'fakelogout'} = sub {    &main::rock_talkshout($_[0], "{17}$_[0]->{'NAME'} {7}just disconnected from the game.\n", 'silence logouts');  $_[0]->{'SOCINVIS'} = 1; $_[0]->{'INVIS'} = 1; $_[0]->log_append("{13}<< You are 'logged out', socinvis, and invis. >>\n"); };
+
+$main::adminbase_sing->{'events'} = sub { $_[0]->log_append($main::eventman->toString()); };
+
+$main::adminbase_sing->{'act2sql'} = sub{
+	open(F, '>/home/plat/zmir/r3/act2sql.txt');
+
+	my @gestures = @main::gestures;
+	grep { s/'/''/g } @gestures;
+	foreach my $name (keys %$main::amap) {
+    	my $n = $main::amap->{$name};
+
+    	print F sprintf(<<END_CAP, $name, @gestures[$n..($n+6)]);
+	INSERT INTO socials
+	(name, usender, uall, bsender, breceiver, ball, asender, aall)
+	VALUES
+	('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');
+END_CAP
+	}
+	print F "commit;\n";
+	close F;
+};
+
+$main::adminbase_sing->{'clobjs'} = sub {
+	my (@w, $o, @b, @floor);
+	foreach $o (values (%{$main::objs})) {
+	  if(ref($o) eq 'web') { push(@w, $o); }
+	  elsif(ref($o) eq 'bodypart') { push(@b, $o); }
+	}
+
+	foreach $o (@w, @b) { $o->obj_dissolve; }
+
+	# scan 2
+	my $truck = &{$main::objbase->[95]};
+	$main::map->[0]->inv_add($truck);
+	$truck->stats_update(); $truck->power_up(); 
+	foreach my $room (@{$main::map}) {
+	  if($room->inv_objsnum()<12) {
+    	foreach $o ($room->inv_objs) {
+    	   # $_[0]->log_append("Scanned $o->{'NAME'}: 
+        	if(($o->{'TYPE'}==0) && (!$o->{'LASTDROP'} || ((time - $o->{'LASTDROP'})>80)) && $truck->can_lift($o) && $o->can_be_lifted($truck)) { push(@floor, $o); }
+    	}
+	  }
+	}
+	$truck->obj_dissolve();
+
+	foreach $o (@floor) {  $o->obj_dissolve(); }
+
+	&main::rock_shout(
+	   undef,
+	   "{14}###### {4}Clutter/Misc Cleanup {14}######\n"
+	   . sprintf("{14}## {2}%20s {4}# {5}%05d\{14} ##\n", 'body parts', scalar @b)
+	   . sprintf("{14}## {2}%20s {4}# {5}%05d\{14} ##\n", 'misc floor items', scalar @floor)
+	   . sprintf("{14}## {2}%20s {4}# {5}%05d\{14} ##\n", 'webs', scalar @w)
+	   . "{14}".('#' x 34)."\n",
+	   1
+	   );
+};
+
+
+
+use Text::Soundex;
+use Text::Abbrev;
+sub commands_soundex {
+   foreach my $c (keys(%main::cmdbase_sing),
+                  keys(%main::cmdbase_mult), keys(%{$main::amap})
+                  ) {
+      
+           $main::snd_to_cmd{&main::soundex($c)} = $c;   
+   }
+   foreach my $c (keys(%{$main::cmdbase_ali})) {
+           $main::snd_to_cmd{&main::soundex($c)} = $main::cmdbase_ali->{$c};   
+   }
+   return;
+}
+
+sub fill_aliases {
+  # &main::abbrev($main::cmdbase_ali, (keys(%main::cmdbase_mult), keys(%main::cmdbase_sing), keys(%{$main::amap})));
+}
+
+1;

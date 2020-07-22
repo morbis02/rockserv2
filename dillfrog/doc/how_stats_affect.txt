@@ -1,0 +1,49 @@
+NOTE: This is an old document, and probably just a brainstorm of how stats should affect players in the game. Don't read this as how stats actually are, in their current state.
+
+
+What Stats Affect What:
+
+Strength (the power):
+	Upper Body:
+	  What it affects: Hand/Melee combat strength. Cannot wield weapon if upper body strength isn't high enough. Increases intimidation.
+	  What affects it: melee combat.
+	Lower Body:
+	  What it affects: Kicking combat strength, also affects melee but not as much. How much weight one can bear.
+	  What affects it: melee combat, not as much as upper. walking around.
+
+Agility (the use of strength):
+   Upper Body:
+      What it affects: melee combat #swings, accuracy.
+	  What affects it: melee combat, not heavily. practice (dojo?) arena.
+   Lower Body: 
+      What it affects: melee combat #swings. how fast you can walk on diff. terrains.
+	  What affects it: melee combat, not heavily. practice (training camp).
+
+Charisma (personality):
+   Appearance:
+      What it affects: npcs more likely to begin talking to you. people who dont know you might be more friendly. might look more important/powerful than they are. better deals at stores.
+	  What affects it: beauty salon, what you have on, agility (tripping), knowledge..all other stats..
+   Attitude/Enthusiasm:
+      (Att/Lev.. attitude measured as greater/less than one) 
+      What it affects: actions used, thanks rewarded (but not much).
+	  What affects it: user-comment (thank/deprecate).
+
+Defense (personality):
+   Physical:
+      What it affects: npcs more likely to begin talking to you. people who dont know you might be more friendly. might look more important/powerful than they are. better deals at stores.
+	  What affects it: beauty salon, what you have on, agility (tripping), knowledge..all other stats..
+   Energy:
+      (Att/Lev.. attitude measured as greater/less than one) 
+      What it affects: actions used, thanks rewarded (but not much).
+	  What affects it: user-comment (thank/deprecate).
+   Mental:
+      What it affects: mind probes, when someone forces/cons people to do things.., peer pressure (bullying)
+	  What affects it: beauty salon, what you have on, agility (tripping), knowledge..all other stats..
+
+
+Misc Notes:
+----------
+Intimidation?
+Want: Subroutine to 'explain why' npcs/etc are doing thing.
+??? Change mechanical kno to sci?
+

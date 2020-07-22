@@ -1,0 +1,7 @@
+# Yes, this is very cheap. Help! :)
+cd /opt/rs2/src
+nohup perl rockserv2.pl >r2.log 2>r2_error.log & disown
+#renice 20 %1
+#disown %1 # won't work properly if you have other jobs up
+#cd /
+

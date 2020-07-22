@@ -1,0 +1,51 @@
+NOTE: This doc is old, and might be a little confusing. But it's
+the closest thing we already have to a code style guide. Granted,
+given the mess we have to work with, I'm not probably the best person
+to talk about coding style. But I've learned a lot from all this
+trial-and-error. Really. :) :)
+
+A lot of it is based on my personal preference, but that's the breaks.
+
+
+
+Style Guidelines
+---------------------------------
+
+New subroutines should have descriptions at the top of each sub.
+They don't need to be complex, but should be able to describe what the function
+does, what the inputs are, and what the function returns (if non-void).
+
+When someone gives bad input to the function and the function displays a
+friendly error, if it is a user error, show the user a friendly error message,
+including syntax.
+
+
+COMMENTS
+
+Comments should have one space separating the text from the comment
+marker. For example:
+
+    #this is BAD
+    # This is GOOD
+    #  This is BAD
+ 
+An exception to the rule would be when commenting out code. In this case, try
+not to use 1 space (zero, or more than one space, are OK).
+
+
+BRACES / INDENTATION / SPACING
+
+K&R bracing conserves vertical whitespace, and should be used
+(none of this one-brace-on-a-line-of-its-own stuff, unless you
+had to wrap a long function line).
+
+To increase legibility, there should be a space between
+keywords and parentheses, for example:
+    NOT:  if(condition){
+    GOOD: if (condition) {
+    NOT:  while(condition){
+    GOOD: while (condition) {
+
+Indentation should be 4 spaces at a time. Make sure your text
+editor does NOT insert the "tab" character, but rather sets of
+4 spaces.

@@ -1,0 +1,21 @@
+Player / C-Code
+Exp
+Turns
+HP
+MA
+Teleport
+Items
+
+# E xperience
+# T urns
+# H p   (full)
+# M ana (full)
+# t eleport
+# I tem
+ 
+CREATE TABLE ROCK_CERTS(
+    NAME   CHAR(20),
+    C_TYPE CHAR(1),
+    C_VAL  INTEGER
+);
+INSERT INTO ROCK_CERTS (NAME, C_TYPE, C_VAL) VALUES ('plat', 'I', 135);
