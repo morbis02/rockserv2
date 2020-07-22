@@ -29,10 +29,31 @@ Open a webbrowser and navigate to http://127.0.0.1/phpmyadmin
 
 	Enter root username and password
 
-Create 2 blank databases r2_dillfrog and r2_fuzzem
-	Import r2dillfrog.sql into the r2_dillfrog database
-	Import r2fuzzem.sql in the r2_fuzzem database
+	Import the r2_schema_data.sql file
+		
+		Click Import
+		
+		Choose the file located at C:\rockserv2\r2_schema_data.sql
+		
+		Leave All Defaults selected and click "GO"
+		
+			This creates two databases with 2 users (ADMIN and PLAYER) one for DILLFROG and one for fuzzem
 
+			It also creates a mysql user named rockserv with the password "password" that has all access rights on the two databases
+			
+You should now be able to start the server. Open a command prompt, 
+
+	navigate to C:\rockserv2\dillfrog\src and type perl rockserv2.pl
+	
+	or 
+	
+	navigate to C:\rockserv2\fuzzem\src and type perl rockserv2.pl
+	
+You can then login using your favorite mud client 
+		ip address is 127.0.0.1 
+		username admin / player
+		password is "password"
+			
 
 <!--
 *** Thanks for checking out this README Template. If you have a suggestion that would
