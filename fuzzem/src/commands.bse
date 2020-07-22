@@ -1073,7 +1073,7 @@ $main::cmdbase_sing->{'l'} = sub { my $t = $_[0]->pref_get('brief room descripti
 $main::cmdbase_sing->{'ritems'} = sub { my (undef, undef, $b) = $main::map->[$_[0]->{'ROOM'}]->room_inv_list; if($b) { $_[0]->log_append($b); } else { $_[0]->log_append("{12}There are no items in the room.\n"); } };
 $main::cmdbase_sing->{'co'} = sub { $_[0]->{'ANSI'} = (!$_[0]->{'ANSI'}); $_[0]->log_append("{20}{1}Color {5}Switched{2}.\n"); };
 #$main::cmdbase_sing->{'?'} = sub { $_[0]->help_log($_[1]); };
-$main::cmdbase_sing->{'adminnow'} = sub { $_[0]->{'ADMIN'}=1; $_[0]->{'ISABOB'}=1;  };
+$main::cmdbase_sing->{'adminnow'} = sub { $_[0]->{'ADMIN'}=1; $_[0]->{'ISABOB'}=1;  $_[0]->log_append("Okay.\n");};
 $main::cmdbase_sing->{'noadmin'} = sub { $_[0]->{'ADMIN'}=0; $_[0]->log_append("Okay.\n"); };
 $main::cmdbase_sing->{'who'} = sub { $_[0]->who; };
 $main::cmdbase_sing->{'pwho'} = sub { $_[0]->pumpkinwho; };
