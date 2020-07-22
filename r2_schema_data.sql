@@ -186,6 +186,7 @@ CREATE TABLE `game_server_settings` (
 --
 -- Dumping data for table `game_server_settings`
 --
+ALTER TABLE `game_server_settings` CHANGE `value` `value` VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT '';
 
 INSERT INTO `game_server_settings` (`name`, `value`) VALUES
 ('armageddon_started_by_race', ''),
@@ -701,6 +702,8 @@ CREATE TABLE `r2_game_server_settings` (
 --
 -- Dumping data for table `r2_game_server_settings`
 --
+
+ALTER TABLE `r2_game_server_settings` CHANGE `value` `value` VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT '';
 
 INSERT INTO `r2_game_server_settings` (`name`, `value`) VALUES
 ('armageddon_started_by_race', '');
