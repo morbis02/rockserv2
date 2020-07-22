@@ -6,7 +6,9 @@ https://www.fuzzem.com/downloads/bitnami-wampstack-7.4.8-0-windows-x64-installer
 
 https://www.fuzzem.com/downloads/strawberry-perl-5.16.3.1-64bit.msi
 
-Clone or Copy this GIT repository. Instructions are going to be based on everything running of C:\rockserv2
+Clone or Copy this GIT repository. 
+
+Instructions are going to be based on everything running out of C:\rockserv2
 
 Install bitnami wampstack 7.4.8.0 with all the default options, set a root password for the mysql database (pick anything you wish)
 
