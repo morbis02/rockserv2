@@ -206,6 +206,7 @@ CREATE TABLE `item_names_by_rec` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
+ALTER TABLE `item_names_by_rec` CHANGE `item_desc` `item_desc` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
 
 --
 -- Table structure for table `lottery`
