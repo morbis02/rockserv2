@@ -37,3 +37,4 @@ inc/
 #Ignore Files
 .DS_STORE
 /saved/*.r2
+*.r2
